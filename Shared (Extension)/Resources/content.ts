@@ -3,22 +3,70 @@
     return `form-saver-${window.location.href}`;
   }
 
-  function getElementId(element: HTMLTextAreaElement | HTMLInputElement) {
-    let keyParts = [];
+  function getElementSelector(element: HTMLTextAreaElement | HTMLInputElement) {
+    let keyParts: Array<string> = [];
     let formId = element.closest("form")?.id;
     if (formId) {
       keyParts.push(`#${formId}`);
     }
+
     let elementId = element.id;
     if (elementId) {
       keyParts.push(`#${elementId}`);
     } else {
-      let elementName = element.name;
+      const elSelector: Array<string> = [];
+      const elementName = element.name;
       if (elementName) {
-        keyParts.push(`[name="${elementName}"]`);
+        elSelector.push(`[name="${elementName}"]`);
       }
+
+      if (element.type === "checkbox" || element.type === "radio") {
+        const elementValue = element.value;
+        if (elementValue) {
+          elSelector.push(`[value="${elementValue}"]`);
+        }
+      }
+
+      if (!elSelector.length) {
+        return null;
+      }
+
+      keyParts.push(elSelector.join(""));
     }
+
     return keyParts.join(" ");
+  }
+
+  function persistData(
+    node: HTMLTextAreaElement | HTMLInputElement,
+    data: Record<string, string>
+  ) {
+    let elementSelector = getElementSelector(node);
+    if (!elementSelector) {
+      return;
+    }
+    if (node.type === "checkbox" || node.type === "radio") {
+      data[elementSelector] = (node as HTMLInputElement).checked
+        ? "checked"
+        : "";
+    } else if (node.value) {
+      data[elementSelector] = node.value;
+    } else {
+      delete data[elementSelector];
+    }
+  }
+
+  function restoreData(
+    node: HTMLTextAreaElement | HTMLInputElement,
+    value: string
+  ) {
+    if (node.type === "checkbox" || node.type === "radio") {
+      (node as HTMLInputElement).checked = value === "checked";
+      return;
+    }
+    // don't overwrite if the site has prefilled
+    if (node.value) return;
+    node.value = value;
   }
 
   function saveContents() {
@@ -27,17 +75,7 @@
     const data =
       (JSON.parse(savedData) as undefined | Record<string, string>) || {};
     findFormElements(document.body).forEach((node) => {
-      if (node.type === "checkbox") {
-        data[getElementId(node)] = (node as HTMLInputElement).checked
-          ? "checked"
-          : "";
-        return;
-      }
-      if (node.value) {
-        data[getElementId(node)] = node.value;
-      } else {
-        delete data[getElementId(node)];
-      }
+      persistData(node, data);
     });
 
     localStorage.setItem(makeKey(), JSON.stringify(data));
@@ -50,17 +88,12 @@
     const data =
       (JSON.parse(savedData) as undefined | Record<string, string>) || {};
     Object.entries(data).forEach(([selector, value]) => {
-      const node = document.querySelector(selector) as
-        | HTMLTextAreaElement
-        | HTMLInputElement;
-      if (node.type === "checkbox") {
-        (node as HTMLInputElement).checked =
-          data[getElementId(node)] === "checked";
-        return;
-      }
-      if (!node?.value && value) {
-        node.value = value;
-      }
+      restoreData(
+        document.querySelector(selector) as
+          | HTMLTextAreaElement
+          | HTMLInputElement,
+        value
+      );
     });
   }
 
@@ -73,7 +106,11 @@
           | Record<string, string>) || {};
 
       findFormElements(form).forEach((node) => {
-        delete data[getElementId(node)];
+        let elementSelector = getElementSelector(node);
+        if (!elementSelector) {
+          return;
+        }
+        delete data[elementSelector];
       });
       localStorage.setItem(pageKey, JSON.stringify(data));
     });
@@ -96,7 +133,6 @@
 
   let mutationObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      console.log(mutation);
       if (mutation.type !== "childList") {
         return;
       }
@@ -120,26 +156,14 @@
             | undefined
             | Record<string, string>) || {};
         added.forEach((node) => {
-          if (node.type === "checkbox") {
-            (node as HTMLInputElement).checked =
-              data[getElementId(node)] === "checked";
+          let elementSelector = getElementSelector(node);
+          if (!elementSelector) {
             return;
           }
-          if (node.value) return;
-          node.value = data[getElementId(node)] || "";
+          restoreData(node, data[elementSelector]);
         });
         removed.forEach((node) => {
-          if (node.type === "checkbox") {
-            data[getElementId(node)] = (node as HTMLInputElement).checked
-              ? "checked"
-              : "";
-            return;
-          }
-          if (node.value) {
-            data[getElementId(node)] = node.value;
-          } else {
-            delete data[getElementId(node)];
-          }
+          persistData(node, data);
         });
         localStorage.setItem(pageKey, JSON.stringify(data));
       }
