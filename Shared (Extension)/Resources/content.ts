@@ -26,7 +26,13 @@
     if (!savedData) return;
     const data =
       (JSON.parse(savedData) as undefined | Record<string, string>) || {};
-    findFormElements(document).forEach((node) => {
+    findFormElements(document.body).forEach((node) => {
+      if (node.type === "checkbox") {
+        data[getElementId(node)] = (node as HTMLInputElement).checked
+          ? "checked"
+          : "";
+        return;
+      }
       if (node.value) {
         data[getElementId(node)] = node.value;
       } else {
@@ -47,6 +53,11 @@
       const node = document.querySelector(selector) as
         | HTMLTextAreaElement
         | HTMLInputElement;
+      if (node.type === "checkbox") {
+        (node as HTMLInputElement).checked =
+          data[getElementId(node)] === "checked";
+        return;
+      }
       if (!node?.value && value) {
         node.value = value;
       }
@@ -109,17 +120,28 @@
             | undefined
             | Record<string, string>) || {};
         added.forEach((node) => {
+          if (node.type === "checkbox") {
+            (node as HTMLInputElement).checked =
+              data[getElementId(node)] === "checked";
+            return;
+          }
           if (node.value) return;
           node.value = data[getElementId(node)] || "";
         });
         removed.forEach((node) => {
+          if (node.type === "checkbox") {
+            data[getElementId(node)] = (node as HTMLInputElement).checked
+              ? "checked"
+              : "";
+            return;
+          }
           if (node.value) {
             data[getElementId(node)] = node.value;
           } else {
             delete data[getElementId(node)];
           }
-          localStorage.setItem(pageKey, JSON.stringify(data));
         });
+        localStorage.setItem(pageKey, JSON.stringify(data));
       }
     });
   });
