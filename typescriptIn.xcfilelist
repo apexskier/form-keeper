@@ -1,0 +1,4 @@
+#!/bin/sh
+
+find . -type f -name "*.ts" -not -path "*/node_modules/*"
+echo "tsconfig.json"
