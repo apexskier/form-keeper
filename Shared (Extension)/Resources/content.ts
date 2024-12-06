@@ -3,27 +3,41 @@
     return `form-saver-${window.location.href}`;
   }
 
-  function getElementSelector(element: HTMLTextAreaElement | HTMLInputElement) {
-    let keyParts: Array<string> = [];
+  function getElementSelector(
+    element: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
+  ) {
+    let selectorParts: Array<string> = [];
     let formId = element.closest("form")?.id;
     if (formId) {
-      keyParts.push(`#${formId}`);
+      selectorParts.push(`#${formId}`);
     }
 
     let elementId = element.id;
     if (elementId) {
-      keyParts.push(`#${elementId}`);
+      selectorParts.push(`#${elementId}`);
     } else {
       const elSelector: Array<string> = [];
-      const elementName = element.name;
-      if (elementName) {
-        elSelector.push(`[name="${elementName}"]`);
-      }
 
-      if (element.type === "checkbox" || element.type === "radio") {
+      if (
+        isOptionElement(element) ||
+        element.type === "checkbox" ||
+        element.type === "radio"
+      ) {
         const elementValue = element.value;
         if (elementValue) {
           elSelector.push(`[value="${elementValue}"]`);
+        }
+      }
+
+      if (!isOptionElement(element)) {
+        const elementName = element.name;
+        if (elementName) {
+          elSelector.push(`[name="${elementName}"]`);
+        }
+      } else {
+        const elementName = element.closest("select")?.name;
+        if (elementName) {
+          selectorParts.push(`[name="${elementName}"]`);
         }
       }
 
@@ -31,21 +45,29 @@
         return null;
       }
 
-      keyParts.push(elSelector.join(""));
+      selectorParts.push(elSelector.join(""));
     }
 
-    return keyParts.join(" ");
+    return selectorParts.join(" ");
+  }
+
+  function isOptionElement(
+    node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
+  ): node is HTMLOptionElement {
+    return node.tagName === "OPTION";
   }
 
   function persistData(
-    node: HTMLTextAreaElement | HTMLInputElement,
+    node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
     data: Record<string, string>
   ) {
     let elementSelector = getElementSelector(node);
     if (!elementSelector) {
       return;
     }
-    if (node.type === "checkbox" || node.type === "radio") {
+    if (isOptionElement(node)) {
+      data[elementSelector] = node.selected ? "selected" : "";
+    } else if (node.type === "checkbox" || node.type === "radio") {
       data[elementSelector] = (node as HTMLInputElement).checked
         ? "checked"
         : "";
@@ -57,16 +79,17 @@
   }
 
   function restoreData(
-    node: HTMLTextAreaElement | HTMLInputElement,
+    node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
     value: string
   ) {
-    if (node.type === "checkbox" || node.type === "radio") {
+    if (isOptionElement(node)) {
+      node.selected = value === "selected";
+    } else if (node.type === "checkbox" || node.type === "radio") {
       (node as HTMLInputElement).checked = value === "checked";
-      return;
+    } else if (!node.value) {
+      // don't overwrite if the site has prefilled
+      node.value = value;
     }
-    // don't overwrite if the site has prefilled
-    if (node.value) return;
-    node.value = value;
   }
 
   function saveContents() {
@@ -118,7 +141,7 @@
 
   function findFormElements(
     node: Node
-  ): Array<HTMLTextAreaElement | HTMLInputElement> {
+  ): Array<HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement> {
     if (!(node instanceof HTMLElement)) {
       return [];
     }
@@ -128,7 +151,12 @@
     if (node.tagName === "INPUT") {
       return [node as HTMLInputElement];
     }
-    return Array.from(node.querySelectorAll?.("textarea, input") ?? []);
+    if (node.tagName === "SELECT") {
+      return Array.from(node.querySelectorAll("option"));
+    }
+    return Array.from(
+      node.querySelectorAll?.("textarea, input, select option") ?? []
+    );
   }
 
   let mutationObserver = new MutationObserver((mutations) => {
