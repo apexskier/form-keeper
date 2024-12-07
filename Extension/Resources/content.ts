@@ -182,8 +182,7 @@
     subtree: true,
   });
 
-  // when page is about to unload
-  window.addEventListener("beforeunload", () => {
+  window.addEventListener("pagehide", () => {
     // save all form data
 
     const savedData = localStorage.getItem(makeKey()) || "{}";
