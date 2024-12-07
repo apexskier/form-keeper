@@ -7,46 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C5DAA1982CFE99B5002AB3F1 /* FormKeeper Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C5DAA1972CFE99B5002AB3F1 /* FormKeeper Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		C5DAA1A22CFE99B5002AB3F1 /* FormKeeper Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C5DAA1A12CFE99B5002AB3F1 /* FormKeeper Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C55155282D04C89F00D27EF4 /* FormKeeper Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C5DAA1972CFE99B5002AB3F1 /* FormKeeper Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		C5DAA1992CFE99B5002AB3F1 /* PBXContainerItemProxy */ = {
+		C55155292D04C8A100D27EF4 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C5DAA15D2CFE99B4002AB3F1 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = C5DAA1962CFE99B5002AB3F1;
-			remoteInfo = "FormKeeper Extension (iOS)";
-		};
-		C5DAA1A32CFE99B5002AB3F1 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = C5DAA15D2CFE99B4002AB3F1 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = C5DAA1A02CFE99B5002AB3F1;
-			remoteInfo = "FormKeeper Extension (macOS)";
+			remoteInfo = "FormKeeper Extension";
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		C5DAA1CB2CFE99B5002AB3F1 /* Embed Foundation Extensions */ = {
+		C55154862D04BFE500D27EF4 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				C5DAA1982CFE99B5002AB3F1 /* FormKeeper Extension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C5DAA1D52CFE99B5002AB3F1 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				C5DAA1A22CFE99B5002AB3F1 /* FormKeeper Extension.appex in Embed Foundation Extensions */,
+				C55155282D04C89F00D27EF4 /* FormKeeper Extension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -54,61 +35,25 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		C55154802D04BD2B00D27EF4 /* FormKeeper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FormKeeper.entitlements; sourceTree = "<group>"; };
 		C5DAA1792CFE99B5002AB3F1 /* FormKeeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FormKeeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C5DAA18B2CFE99B5002AB3F1 /* FormKeeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FormKeeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5DAA1972CFE99B5002AB3F1 /* FormKeeper Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "FormKeeper Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
-		C5DAA1A12CFE99B5002AB3F1 /* FormKeeper Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "FormKeeper Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5DAA1DF2D02A3F1002AB3F1 /* typescriptIn.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = typescriptIn.xcfilelist; sourceTree = "<group>"; };
 		C5DAA1E32D02A55C002AB3F1 /* typescriptOut.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = typescriptOut.xcfilelist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		C5DAA1C62CFE99B5002AB3F1 /* Exceptions for "Shared (App)" folder in "FormKeeper (iOS)" target */ = {
+		C5DAA1C62CFE99B5002AB3F1 /* Exceptions for "App" folder in "FormKeeper" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				"/Localized: Resources/Main.html",
+				app.swift,
 				Assets.xcassets,
-				Resources/Icon.png,
-				Resources/Script.js,
-				Resources/Style.css,
+				ContentView.swift,
 				ViewController.swift,
 			);
-			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper (iOS) */;
+			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper */;
 		};
-		C5DAA1CA2CFE99B5002AB3F1 /* Exceptions for "iOS (Extension)" folder in "FormKeeper Extension (iOS)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension (iOS) */;
-		};
-		C5DAA1CF2CFE99B5002AB3F1 /* Exceptions for "iOS (App)" folder in "FormKeeper (iOS)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper (iOS) */;
-		};
-		C5DAA1D02CFE99B5002AB3F1 /* Exceptions for "Shared (App)" folder in "FormKeeper (macOS)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"/Localized: Resources/Main.html",
-				Assets.xcassets,
-				Resources/Icon.png,
-				Resources/Script.js,
-				Resources/Style.css,
-				ViewController.swift,
-			);
-			target = C5DAA18A2CFE99B5002AB3F1 /* FormKeeper (macOS) */;
-		};
-		C5DAA1D42CFE99B5002AB3F1 /* Exceptions for "macOS (Extension)" folder in "FormKeeper Extension (macOS)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = C5DAA1A02CFE99B5002AB3F1 /* FormKeeper Extension (macOS) */;
-		};
-		C5DAA1D92CFE99B5002AB3F1 /* Exceptions for "Shared (Extension)" folder in "FormKeeper Extension (iOS)" target */ = {
+		C5DAA1D92CFE99B5002AB3F1 /* Exceptions for "Extension" folder in "FormKeeper Extension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Resources/_locales,
@@ -120,87 +65,35 @@
 				Resources/popup.js,
 				SafariWebExtensionHandler.swift,
 			);
-			target = C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension (iOS) */;
-		};
-		C5DAA1DA2CFE99B5002AB3F1 /* Exceptions for "Shared (Extension)" folder in "FormKeeper Extension (macOS)" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Resources/_locales,
-				Resources/content.js,
-				Resources/images,
-				Resources/manifest.json,
-				Resources/popup.css,
-				Resources/popup.html,
-				Resources/popup.js,
-				SafariWebExtensionHandler.swift,
-			);
-			target = C5DAA1A02CFE99B5002AB3F1 /* FormKeeper Extension (macOS) */;
+			target = C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		C5DAA1612CFE99B4002AB3F1 /* Shared (App) */ = {
+		C5DAA1612CFE99B4002AB3F1 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C5DAA1C62CFE99B5002AB3F1 /* Exceptions for "Shared (App)" folder in "FormKeeper (iOS)" target */,
-				C5DAA1D02CFE99B5002AB3F1 /* Exceptions for "Shared (App)" folder in "FormKeeper (macOS)" target */,
+				C5DAA1C62CFE99B5002AB3F1 /* Exceptions for "App" folder in "FormKeeper" target */,
 			);
-			path = "Shared (App)";
+			path = App;
 			sourceTree = "<group>";
 		};
-		C5DAA16A2CFE99B5002AB3F1 /* Shared (Extension) */ = {
+		C5DAA16A2CFE99B5002AB3F1 /* Extension */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				C5DAA1D92CFE99B5002AB3F1 /* Exceptions for "Shared (Extension)" folder in "FormKeeper Extension (iOS)" target */,
-				C5DAA1DA2CFE99B5002AB3F1 /* Exceptions for "Shared (Extension)" folder in "FormKeeper Extension (macOS)" target */,
+				C5DAA1D92CFE99B5002AB3F1 /* Exceptions for "Extension" folder in "FormKeeper Extension" target */,
 			);
 			explicitFolders = (
 				Resources/_locales,
 				Resources/images,
 			);
-			path = "Shared (Extension)";
-			sourceTree = "<group>";
-		};
-		C5DAA17B2CFE99B5002AB3F1 /* iOS (App) */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				C5DAA1CF2CFE99B5002AB3F1 /* Exceptions for "iOS (App)" folder in "FormKeeper (iOS)" target */,
-			);
-			path = "iOS (App)";
-			sourceTree = "<group>";
-		};
-		C5DAA18C2CFE99B5002AB3F1 /* macOS (App) */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "macOS (App)";
-			sourceTree = "<group>";
-		};
-		C5DAA19B2CFE99B5002AB3F1 /* iOS (Extension) */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				C5DAA1CA2CFE99B5002AB3F1 /* Exceptions for "iOS (Extension)" folder in "FormKeeper Extension (iOS)" target */,
-			);
-			path = "iOS (Extension)";
-			sourceTree = "<group>";
-		};
-		C5DAA1A52CFE99B5002AB3F1 /* macOS (Extension) */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				C5DAA1D42CFE99B5002AB3F1 /* Exceptions for "macOS (Extension)" folder in "FormKeeper Extension (macOS)" target */,
-			);
-			path = "macOS (Extension)";
+			path = Extension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C5DAA1762CFE99B5002AB3F1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C5DAA1882CFE99B5002AB3F1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -214,27 +107,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C5DAA19E2CFE99B5002AB3F1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C55154822D04BFE500D27EF4 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C5DAA15C2CFE99B4002AB3F1 = {
 			isa = PBXGroup;
 			children = (
 				C5DAA1DF2D02A3F1002AB3F1 /* typescriptIn.xcfilelist */,
 				C5DAA1E32D02A55C002AB3F1 /* typescriptOut.xcfilelist */,
-				C5DAA1612CFE99B4002AB3F1 /* Shared (App) */,
-				C5DAA16A2CFE99B5002AB3F1 /* Shared (Extension) */,
-				C5DAA17B2CFE99B5002AB3F1 /* iOS (App) */,
-				C5DAA18C2CFE99B5002AB3F1 /* macOS (App) */,
-				C5DAA19B2CFE99B5002AB3F1 /* iOS (Extension) */,
-				C5DAA1A52CFE99B5002AB3F1 /* macOS (Extension) */,
+				C5DAA1612CFE99B4002AB3F1 /* App */,
+				C5DAA16A2CFE99B5002AB3F1 /* Extension */,
+				C55154802D04BD2B00D27EF4 /* FormKeeper.entitlements */,
+				C55154822D04BFE500D27EF4 /* Frameworks */,
 				C5DAA17A2CFE99B5002AB3F1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -243,9 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				C5DAA1792CFE99B5002AB3F1 /* FormKeeper.app */,
-				C5DAA18B2CFE99B5002AB3F1 /* FormKeeper.app */,
 				C5DAA1972CFE99B5002AB3F1 /* FormKeeper Extension.appex */,
-				C5DAA1A12CFE99B5002AB3F1 /* FormKeeper Extension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -253,58 +142,30 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		C5DAA1782CFE99B5002AB3F1 /* FormKeeper (iOS) */ = {
+		C5DAA1782CFE99B5002AB3F1 /* FormKeeper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C5DAA1CC2CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper (iOS)" */;
+			buildConfigurationList = C5DAA1CC2CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper" */;
 			buildPhases = (
 				C5DAA1752CFE99B5002AB3F1 /* Sources */,
 				C5DAA1762CFE99B5002AB3F1 /* Frameworks */,
 				C5DAA1772CFE99B5002AB3F1 /* Resources */,
-				C5DAA1CB2CFE99B5002AB3F1 /* Embed Foundation Extensions */,
+				C55154862D04BFE500D27EF4 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				C5DAA19A2CFE99B5002AB3F1 /* PBXTargetDependency */,
+				C551552A2D04C8A100D27EF4 /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				C5DAA17B2CFE99B5002AB3F1 /* iOS (App) */,
-			);
-			name = "FormKeeper (iOS)";
+			name = FormKeeper;
 			packageProductDependencies = (
 			);
 			productName = "FormKeeper (iOS)";
 			productReference = C5DAA1792CFE99B5002AB3F1 /* FormKeeper.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C5DAA18A2CFE99B5002AB3F1 /* FormKeeper (macOS) */ = {
+		C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C5DAA1D62CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper (macOS)" */;
-			buildPhases = (
-				C5DAA1DE2D02A393002AB3F1 /* ShellScript */,
-				C5DAA1872CFE99B5002AB3F1 /* Sources */,
-				C5DAA1882CFE99B5002AB3F1 /* Frameworks */,
-				C5DAA1892CFE99B5002AB3F1 /* Resources */,
-				C5DAA1D52CFE99B5002AB3F1 /* Embed Foundation Extensions */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				C5DAA1A42CFE99B5002AB3F1 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				C5DAA18C2CFE99B5002AB3F1 /* macOS (App) */,
-			);
-			name = "FormKeeper (macOS)";
-			packageProductDependencies = (
-			);
-			productName = "FormKeeper (macOS)";
-			productReference = C5DAA18B2CFE99B5002AB3F1 /* FormKeeper.app */;
-			productType = "com.apple.product-type.application";
-		};
-		C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension (iOS) */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C5DAA1C72CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper Extension (iOS)" */;
+			buildConfigurationList = C5DAA1C72CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper Extension" */;
 			buildPhases = (
 				C5DAA1932CFE99B5002AB3F1 /* Sources */,
 				C5DAA1942CFE99B5002AB3F1 /* Frameworks */,
@@ -314,36 +175,11 @@
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				C5DAA19B2CFE99B5002AB3F1 /* iOS (Extension) */,
-			);
-			name = "FormKeeper Extension (iOS)";
+			name = "FormKeeper Extension";
 			packageProductDependencies = (
 			);
 			productName = "FormKeeper Extension (iOS)";
 			productReference = C5DAA1972CFE99B5002AB3F1 /* FormKeeper Extension.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		C5DAA1A02CFE99B5002AB3F1 /* FormKeeper Extension (macOS) */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = C5DAA1D12CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper Extension (macOS)" */;
-			buildPhases = (
-				C5DAA19D2CFE99B5002AB3F1 /* Sources */,
-				C5DAA19E2CFE99B5002AB3F1 /* Frameworks */,
-				C5DAA19F2CFE99B5002AB3F1 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				C5DAA1A52CFE99B5002AB3F1 /* macOS (Extension) */,
-			);
-			name = "FormKeeper Extension (macOS)";
-			packageProductDependencies = (
-			);
-			productName = "FormKeeper Extension (macOS)";
-			productReference = C5DAA1A12CFE99B5002AB3F1 /* FormKeeper Extension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -359,13 +195,7 @@
 					C5DAA1782CFE99B5002AB3F1 = {
 						CreatedOnToolsVersion = 16.1;
 					};
-					C5DAA18A2CFE99B5002AB3F1 = {
-						CreatedOnToolsVersion = 16.1;
-					};
 					C5DAA1962CFE99B5002AB3F1 = {
-						CreatedOnToolsVersion = 16.1;
-					};
-					C5DAA1A02CFE99B5002AB3F1 = {
 						CreatedOnToolsVersion = 16.1;
 					};
 				};
@@ -384,23 +214,14 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				C5DAA1782CFE99B5002AB3F1 /* FormKeeper (iOS) */,
-				C5DAA18A2CFE99B5002AB3F1 /* FormKeeper (macOS) */,
-				C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension (iOS) */,
-				C5DAA1A02CFE99B5002AB3F1 /* FormKeeper Extension (macOS) */,
+				C5DAA1782CFE99B5002AB3F1 /* FormKeeper */,
+				C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		C5DAA1772CFE99B5002AB3F1 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C5DAA1892CFE99B5002AB3F1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -414,46 +235,10 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C5DAA19F2CFE99B5002AB3F1 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		C5DAA1DE2D02A393002AB3F1 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"$(SRCROOT)/typescriptIn.xcfilelist",
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-				"$(SRCROOT)/typescriptOut.xcfilelist",
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "PATH=\"$PATH:/opt/homebrew/bin\"\n\nnpm run build\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		C5DAA1752CFE99B5002AB3F1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		C5DAA1872CFE99B5002AB3F1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -467,25 +252,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C5DAA19D2CFE99B5002AB3F1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		C5DAA19A2CFE99B5002AB3F1 /* PBXTargetDependency */ = {
+		C551552A2D04C8A100D27EF4 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension (iOS) */;
-			targetProxy = C5DAA1992CFE99B5002AB3F1 /* PBXContainerItemProxy */;
-		};
-		C5DAA1A42CFE99B5002AB3F1 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = C5DAA1A02CFE99B5002AB3F1 /* FormKeeper Extension (macOS) */;
-			targetProxy = C5DAA1A32CFE99B5002AB3F1 /* PBXContainerItemProxy */;
+			target = C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension */;
+			targetProxy = C55155292D04C8A100D27EF4 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -493,19 +266,24 @@
 		C5DAA1C82CFE99B5002AB3F1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_ENTITLEMENTS = FormKeeper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_FILE = Extension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "FormKeeper Extension";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -513,8 +291,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.Extension";
 				PRODUCT_NAME = "FormKeeper Extension";
-				SDKROOT = iphoneos;
+				REGISTER_APP_GROUPS = NO;
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -524,19 +304,24 @@
 		C5DAA1C92CFE99B5002AB3F1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALLOW_TARGET_PLATFORM_SPECIALIZATION = YES;
+				CODE_SIGN_ENTITLEMENTS = FormKeeper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_FILE = Extension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "FormKeeper Extension";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -544,8 +329,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.Extension";
 				PRODUCT_NAME = "FormKeeper Extension";
-				SDKROOT = iphoneos;
+				REGISTER_APP_GROUPS = NO;
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -558,22 +345,27 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FormKeeper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FormKeeper;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -583,10 +375,10 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper";
 				PRODUCT_NAME = FormKeeper;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -595,22 +387,27 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FormKeeper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_FILE = App/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = FormKeeper;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -620,145 +417,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper";
 				PRODUCT_NAME = FormKeeper;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
-			};
-			name = Release;
-		};
-		C5DAA1D22CFE99B5002AB3F1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/FormKeeper.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6D9DLTQJSN;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "FormKeeper Extension";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
-					"-framework",
-					SafariServices,
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.Extension";
-				PRODUCT_NAME = "FormKeeper Extension";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		C5DAA1D32CFE99B5002AB3F1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "macOS (Extension)/FormKeeper.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6D9DLTQJSN;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "FormKeeper Extension";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
-					"-framework",
-					SafariServices,
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.Extension";
-				PRODUCT_NAME = "FormKeeper Extension";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		C5DAA1D72CFE99B5002AB3F1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "macOS (App)/FormKeeper.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6D9DLTQJSN;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = FormKeeper;
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
-					"-framework",
-					SafariServices,
-					"-framework",
-					WebKit,
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper";
-				PRODUCT_NAME = FormKeeper;
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		C5DAA1D82CFE99B5002AB3F1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "macOS (App)/FormKeeper.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6D9DLTQJSN;
-				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = FormKeeper;
-				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 10.14;
-				MARKETING_VERSION = 1.0;
-				OTHER_LDFLAGS = (
-					"-framework",
-					SafariServices,
-					"-framework",
-					WebKit,
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper";
-				PRODUCT_NAME = FormKeeper;
-				SDKROOT = macosx;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -888,7 +551,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C5DAA1C72CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper Extension (iOS)" */ = {
+		C5DAA1C72CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C5DAA1C82CFE99B5002AB3F1 /* Debug */,
@@ -897,29 +560,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C5DAA1CC2CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper (iOS)" */ = {
+		C5DAA1CC2CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C5DAA1CD2CFE99B5002AB3F1 /* Debug */,
 				C5DAA1CE2CFE99B5002AB3F1 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C5DAA1D12CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper Extension (macOS)" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C5DAA1D22CFE99B5002AB3F1 /* Debug */,
-				C5DAA1D32CFE99B5002AB3F1 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		C5DAA1D62CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper (macOS)" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				C5DAA1D72CFE99B5002AB3F1 /* Debug */,
-				C5DAA1D82CFE99B5002AB3F1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

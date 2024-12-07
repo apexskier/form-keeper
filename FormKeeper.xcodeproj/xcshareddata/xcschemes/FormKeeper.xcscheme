@@ -17,7 +17,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "C5DAA1782CFE99B5002AB3F1"
                BuildableName = "FormKeeper.app"
-               BlueprintName = "FormKeeper (iOS)"
+               BlueprintName = "FormKeeper"
                ReferencedContainer = "container:FormKeeper.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -46,7 +46,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C5DAA1782CFE99B5002AB3F1"
             BuildableName = "FormKeeper.app"
-            BlueprintName = "FormKeeper (iOS)"
+            BlueprintName = "FormKeeper"
             ReferencedContainer = "container:FormKeeper.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -63,7 +63,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "C5DAA1782CFE99B5002AB3F1"
             BuildableName = "FormKeeper.app"
-            BlueprintName = "FormKeeper (iOS)"
+            BlueprintName = "FormKeeper"
             ReferencedContainer = "container:FormKeeper.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
