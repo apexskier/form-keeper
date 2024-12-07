@@ -11,8 +11,39 @@
     return node.tagName === "INPUT";
   }
 
+  if (!window.requestIdleCallback) {
+    window.requestIdleCallback = function (callback, _options) {
+      const options = _options || {};
+      const relaxation = 1;
+      const timeout = options.timeout || relaxation;
+      var start = performance.now();
+      return setTimeout(function () {
+        callback({
+          get didTimeout() {
+            return options.timeout
+              ? false
+              : performance.now() - start - relaxation > timeout;
+          },
+          timeRemaining: function () {
+            return Math.max(0, relaxation + (performance.now() - start));
+          },
+        });
+      }, relaxation);
+    };
+  }
+
+  if (!window.cancelIdleCallback) {
+    window.cancelIdleCallback = function (id) {
+      clearTimeout(id);
+    };
+  }
+
   function getElementSelector(
-    element: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
+    element:
+      | HTMLTextAreaElement
+      | HTMLInputElement
+      | HTMLOptionElement
+      | HTMLSelectElement
   ) {
     let selectorParts: Array<string> = [];
     let formId = element.closest("form")?.id;
@@ -118,6 +149,30 @@
     ).filter((node) => !(isInputElement(node) && node.type === "password"));
   }
 
+  function findChangableElements(
+    node: Node
+  ): Array<HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement> {
+    if (!(node instanceof HTMLElement)) {
+      return [];
+    }
+    if (node.tagName === "TEXTAREA") {
+      return [node as HTMLTextAreaElement];
+    }
+    if (node.tagName === "INPUT") {
+      return [node as HTMLInputElement].filter(
+        (node) => node.type !== "password"
+      );
+    }
+    if (node.tagName === "SELECT") {
+      return [node as HTMLSelectElement];
+    }
+    return Array.from(
+      (node.querySelectorAll?.("textarea, input, select") as NodeListOf<
+        HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
+      >) ?? []
+    ).filter((node) => !(isInputElement(node) && node.type === "password"));
+  }
+
   function wipeOnSubmit(form: HTMLFormElement) {
     form.addEventListener("submit", () => {
       const pageKey = makeKey();
@@ -137,6 +192,62 @@
     });
   }
 
+  const toSaveSelectors = new Set<string>();
+  let toSaveIdleCallback: number = -1;
+
+  function setupEventHandlers(root: HTMLElement) {
+    // wipe form data on submit
+    if (root.tagName === "FORM") {
+      wipeOnSubmit(root as HTMLFormElement);
+    } else {
+      root.querySelectorAll("form").forEach(wipeOnSubmit);
+    }
+
+    findChangableElements(root).forEach((node) => {
+      // use request idle callback to persist data from this element.
+      // if the element is already queued, cancel the last
+
+      node.addEventListener("change", () => {
+        if (node.tagName === "SELECT") {
+          node.querySelectorAll("option").forEach((option) => {
+            let selector = getElementSelector(option);
+            if (!selector) {
+              return;
+            }
+            toSaveSelectors.add(selector);
+          });
+        } else {
+          let selector = getElementSelector(node);
+          if (!selector) {
+            return;
+          }
+          toSaveSelectors.add(selector);
+        }
+
+        window.cancelIdleCallback(toSaveIdleCallback);
+
+        toSaveIdleCallback = window.requestIdleCallback(() => {
+          const pageKey = makeKey();
+          const data =
+            (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+              | undefined
+              | Record<string, string>) || {};
+          toSaveSelectors.forEach((selector) => {
+            const element = document.querySelector(selector) as
+              | HTMLInputElement
+              | HTMLTextAreaElement
+              | HTMLOptionElement;
+            if (!element) {
+              return;
+            }
+            persistData(element, data);
+          });
+          toSaveSelectors.clear();
+        });
+      });
+    });
+  }
+
   let mutationObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type !== "childList") {
@@ -144,7 +255,7 @@
       }
       mutation.addedNodes.forEach((node) => {
         if (node instanceof HTMLElement) {
-          node.querySelectorAll?.("form").forEach(wipeOnSubmit);
+          setupEventHandlers(node);
         }
       });
 
@@ -212,6 +323,5 @@
     });
   }
 
-  // wipe form data on submit
-  document.querySelectorAll("form").forEach(wipeOnSubmit);
+  setupEventHandlers(document.body);
 })();
