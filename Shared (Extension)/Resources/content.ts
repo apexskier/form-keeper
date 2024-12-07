@@ -3,6 +3,14 @@
     return `form-saver-${window.location.href}`;
   }
 
+  function isOptionElement(node: HTMLElement): node is HTMLOptionElement {
+    return node.tagName === "OPTION";
+  }
+
+  function isInputElement(node: HTMLElement): node is HTMLInputElement {
+    return node.tagName === "INPUT";
+  }
+
   function getElementSelector(
     element: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
   ) {
@@ -51,12 +59,6 @@
     return selectorParts.join(" ");
   }
 
-  function isOptionElement(
-    node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
-  ): node is HTMLOptionElement {
-    return node.tagName === "OPTION";
-  }
-
   function persistData(
     node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
     data: Record<string, string>
@@ -92,32 +94,28 @@
     }
   }
 
-  function saveContents() {
-    const savedData = localStorage.getItem(makeKey());
-    if (!savedData) return;
-    const data =
-      (JSON.parse(savedData) as undefined | Record<string, string>) || {};
-    findFormElements(document.body).forEach((node) => {
-      persistData(node, data);
-    });
-
-    localStorage.setItem(makeKey(), JSON.stringify(data));
-  }
-
-  // Restore contents from localStorage
-  function restoreTextAreas() {
-    const savedData = localStorage.getItem(makeKey());
-    if (!savedData) return;
-    const data =
-      (JSON.parse(savedData) as undefined | Record<string, string>) || {};
-    Object.entries(data).forEach(([selector, value]) => {
-      restoreData(
-        document.querySelector(selector) as
-          | HTMLTextAreaElement
-          | HTMLInputElement,
-        value
+  function findFormElements(
+    node: Node
+  ): Array<HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement> {
+    if (!(node instanceof HTMLElement)) {
+      return [];
+    }
+    if (node.tagName === "TEXTAREA") {
+      return [node as HTMLTextAreaElement];
+    }
+    if (node.tagName === "INPUT") {
+      return [node as HTMLInputElement].filter(
+        (node) => node.type !== "password"
       );
-    });
+    }
+    if (node.tagName === "SELECT") {
+      return Array.from(node.querySelectorAll("option"));
+    }
+    return Array.from(
+      (node.querySelectorAll?.("textarea, input, select option") as NodeListOf<
+        HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
+      >) ?? []
+    ).filter((node) => !(isInputElement(node) && node.type === "password"));
   }
 
   function wipeOnSubmit(form: HTMLFormElement) {
@@ -137,26 +135,6 @@
       });
       localStorage.setItem(pageKey, JSON.stringify(data));
     });
-  }
-
-  function findFormElements(
-    node: Node
-  ): Array<HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement> {
-    if (!(node instanceof HTMLElement)) {
-      return [];
-    }
-    if (node.tagName === "TEXTAREA") {
-      return [node as HTMLTextAreaElement];
-    }
-    if (node.tagName === "INPUT") {
-      return [node as HTMLInputElement];
-    }
-    if (node.tagName === "SELECT") {
-      return Array.from(node.querySelectorAll("option"));
-    }
-    return Array.from(
-      node.querySelectorAll?.("textarea, input, select option") ?? []
-    );
   }
 
   let mutationObserver = new MutationObserver((mutations) => {
@@ -198,15 +176,43 @@
     });
   });
 
+  // watch for dom changes to persist and restore dynamic content
   mutationObserver.observe(document.body, {
     childList: true,
     subtree: true,
   });
 
-  // Listen for page unload to save textareas
-  window.addEventListener("beforeunload", saveContents);
+  // when page is about to unload
+  window.addEventListener("beforeunload", () => {
+    // save all form data
 
-  // Restore textareas on page load
-  restoreTextAreas();
+    const savedData = localStorage.getItem(makeKey()) || "{}";
+    const data =
+      (JSON.parse(savedData) as undefined | Record<string, string>) || {};
+    findFormElements(document.body).forEach((node) => {
+      persistData(node, data);
+    });
+
+    localStorage.setItem(makeKey(), JSON.stringify(data));
+  });
+
+  // restore textareas
+  const savedData = localStorage.getItem(makeKey());
+  if (savedData) {
+    Object.entries(
+      (JSON.parse(savedData) as undefined | Record<string, string>) || {}
+    ).forEach(([selector, value]) => {
+      const element = document.querySelector(selector);
+      if (!element) {
+        return;
+      }
+      restoreData(
+        element as HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
+        value
+      );
+    });
+  }
+
+  // wipe form data on submit
   document.querySelectorAll("form").forEach(wipeOnSubmit);
 })();
