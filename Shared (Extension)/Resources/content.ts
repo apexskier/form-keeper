@@ -90,7 +90,7 @@
       (node as HTMLInputElement).checked = value === "checked";
     } else if (!node.value) {
       // don't overwrite if the site has prefilled
-      node.value = value;
+      node.value = value || "";
     }
   }
 
