@@ -15,16 +15,19 @@ extension Text {
     }
 }
 
-struct NumberedView<Content>: View where Content: View {
-    var index: Int
-
-    @ViewBuilder var content: () -> Content
-
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Image(systemName: "\(index).square")
-            content()
+extension View {
+    func bold_() -> some View {
+        if #available(macOS 13.0, iOS 16.0, *) {
+            return self.bold()
         }
+        return self
+    }
+
+    func `if`(condition: Bool, transform: (Self) -> Self) -> some View {
+        if condition {
+            return transform(self)
+        }
+        return self
     }
 }
 
@@ -33,7 +36,11 @@ struct ContentView: View {
         @State var extensionState: SFSafariExtensionState? = nil
     #endif
 
-    @ScaledMetric var scale = 1.0
+    enum Instruction {
+        case global
+        case safari
+    }
+    @State var instructionShown: Instruction = .safari
 
     var body: some View {
         #if os(macOS)
@@ -45,8 +52,14 @@ struct ContentView: View {
         #endif
     }
 
+#if os(macOS)
+    private var outerSpacing: CGFloat = 40
+#else
+    private var outerSpacing: CGFloat = 20
+#endif
+
     var innerBody: some View {
-        VStack(spacing: 40) {
+        VStack(spacing: outerSpacing) {
             Image("Logo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -54,25 +67,25 @@ struct ContentView: View {
 
             VStack(spacing: 8) {
                 Text(
-                    "FormKeeper perserves content you've entered into forms in case of accidental refresh or page close."
+                    "\(appName) tries to perserves content you enter into forms in case of accidental refresh or page close."
                 )
                 .customText()
                 #if os(macOS)
                     if let extensionState {
                         if extensionState.isEnabled {
                             Text(
-                                "FormKeeper’s extension is currently on. You can turn it off in Safari Extensions preferences."
+                                "\(appName)’s extension is currently on. You can turn it off in Safari Extensions preferences."
                             )
                             .customText()
                         } else {
                             Text(
-                                "FormKeeper’s extension is currently off. You can turn it on in Safari Extensions preferences."
+                                "\(appName)’s extension is currently off. You can turn it on in Safari Extensions preferences."
                             )
                             .customText()
                         }
                     } else {
                         Text(
-                            "You can turn on FormKeeper’s extension in Safari Extensions preferences."
+                            "You can turn on \(appName)’s extension in Safari Extensions preferences."
                         )
                         .customText()
                     }
@@ -96,34 +109,49 @@ struct ContentView: View {
                     Text("Open Safari Extensions Preferences")
                 }
             #else
-                VStack(spacing: 20) {
-                    Text(
-                        "You can turn on FormKeeper’s extension in Safari Extensions preferences."
-                    )
-                    .customText()
-                    Text("We recommend enabling everywhere:")
-                        .customText()
-                    VStack(spacing: 8) {
-                        NumberedView(index: 1) {
-                            Text(
-                                "Go to **Settings** > **Apps** > **Safari** > **Extensions** > **\(Bundle.main.infoDictionary!["CFBundleName"] as! String)**"
-                            ).customText()
+                Text(
+                    "You can turn on \(appName)’s extension in Safari Extensions preferences."
+                )
+                .customText()
+
+                VStack(alignment: .leading, spacing: 20) {
+                    HStack(spacing: 8) {
+                        VStack {
+                            Button {
+                                instructionShown = .safari
+                            } label: {
+                                Text("Safari")
+                                    .if(
+                                        condition: instructionShown
+                                            == .safari
+                                    ) {
+                                        $0.bold()
+                                    }
+                            }
                         }
-                        NumberedView(index: 2) {
-                            Text("Turn on **Allow Extension**")
-                                .customText()
-                        }
-                        NumberedView(index: 3) {
-                            Text("Under **Permissions**, tap **All Websites**")
-                                .customText()
-                        }
-                        NumberedView(index: 4) {
-                            Text("Select **Ask**")
-                                .customText()
+                        VStack {
+                            Button {
+                                instructionShown = .global
+                            } label: {
+                                Text("Settings")
+                                    .if(
+                                        condition: instructionShown
+                                            == .global
+                                    ) {
+                                        $0.bold()
+                                    }
+                            }
                         }
                     }
+                    .buttonStyle(.bordered)
+
+                    switch instructionShown {
+                    case .global:
+                        InstructionsViewiOSGlobal()
+                    case .safari:
+                        InstructionsViewiOSSafari()
+                    }
                 }
-                .font(.body)
             #endif
         }
         .padding()

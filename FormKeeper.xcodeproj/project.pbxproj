@@ -49,6 +49,7 @@
 				app.swift,
 				Assets.xcassets,
 				ContentView.swift,
+				InstructionsView.swift,
 				ViewController.swift,
 			);
 			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper */;

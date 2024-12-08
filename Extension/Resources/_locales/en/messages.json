@@ -4,7 +4,7 @@
         "description": "The display name for the extension."
     },
     "extension_description": {
-        "message": "FormKeeper perserves content you've entered into forms in case of accidental refresh or page close.",
+        "message": "FormKeeper tries to perserves content you enter into forms in case of accidental refresh or page close.",
         "description": "Description of what the extension does."
     }
 }

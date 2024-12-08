@@ -2,6 +2,8 @@ import SwiftUI
 
 let extensionBundleIdentifier = "com.camlittle.form-keeper.Extension"
 
+let appName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "FormKeeper"
+
 @main
 struct MyMain {
     static func main() {
@@ -17,7 +19,7 @@ struct MyMain {
     @available(macOS 13.0, *)
     struct ModernApp: App {
         var body: some Scene {
-            Window("FormKeeper", id: "main") {
+            Window(appName, id: "main") {
                 ContentView()
             }
             .windowResizability(.contentSize)
