@@ -176,7 +176,7 @@ struct ContentView: View {
         }
         .padding()
         .sheet(isPresented: $showStore) {
-            if #available(macOS 15.0, *) {
+            if #available(macOS 15.0, iOS 18.0, *) {
                 StoreView()
                     .presentationSizing(.fitted)
             } else {
@@ -204,6 +204,8 @@ struct ContentView: View {
                     break
                 }
             }
+
+            subscriptionActive = false
         }
         #if os(macOS)
         .onAppear {
