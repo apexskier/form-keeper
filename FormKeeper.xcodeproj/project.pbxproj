@@ -48,7 +48,9 @@
 				app.swift,
 				Assets.xcassets,
 				ContentView.swift,
+				FormKeeperIAP.storekit,
 				InstructionsView.swift,
+				StoreView.swift,
 			);
 			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper */;
 		};
@@ -387,7 +389,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -430,7 +432,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 11.5;
+				MACOSX_DEPLOYMENT_TARGET = 12.0;
 				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"-framework",

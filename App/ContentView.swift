@@ -1,4 +1,5 @@
 import SafariServices
+import StoreKit
 import SwiftUI
 
 struct TextModifier: ViewModifier {
@@ -33,7 +34,7 @@ extension View {
 
 struct ContentView: View {
     #if os(macOS)
-        @State var extensionState: SFSafariExtensionState? = nil
+    @State var extensionState: SFSafariExtensionState? = nil
     #endif
 
     enum Instruction {
@@ -42,21 +43,25 @@ struct ContentView: View {
     }
     @State var instructionShown: Instruction = .safari
 
+    @State var subscriptionActive: Bool? = nil
+
     var body: some View {
         #if os(macOS)
-            innerBody
+        innerBody
         #else
-            ScrollView {
-                innerBody
-            }
+        ScrollView {
+            innerBody
+        }
         #endif
     }
 
-#if os(macOS)
+    #if os(macOS)
     private var outerSpacing: CGFloat = 40
-#else
+    #else
     private var outerSpacing: CGFloat = 20
-#endif
+    #endif
+
+    @State private var showStore = false
 
     var innerBody: some View {
         VStack(spacing: outerSpacing) {
@@ -71,102 +76,147 @@ struct ContentView: View {
                 )
                 .customText()
                 #if os(macOS)
-                    if let extensionState {
-                        if extensionState.isEnabled {
-                            Text(
-                                "\(appName)’s extension is currently on. You can turn it off in Safari Extensions preferences."
-                            )
-                            .customText()
-                        } else {
-                            Text(
-                                "\(appName)’s extension is currently off. You can turn it on in Safari Extensions preferences."
-                            )
-                            .customText()
-                        }
+                if let extensionState {
+                    if extensionState.isEnabled {
+                        Text(
+                            "\(appName)’s extension is currently on. You can turn it off in Safari Extensions preferences."
+                        )
+                        .customText()
                     } else {
                         Text(
-                            "You can turn on \(appName)’s extension in Safari Extensions preferences."
+                            "\(appName)’s extension is currently off. You can turn it on in Safari Extensions preferences."
                         )
                         .customText()
                     }
+                } else {
+                    Text(
+                        "You can turn on \(appName)’s extension in Safari Extensions preferences."
+                    )
+                    .customText()
+                }
                 #endif
             }
             .lineLimit(nil)
             .font(.body)
             .frame(maxWidth: 400)
             #if os(macOS)
-                .fixedSize()
+            .fixedSize()
             #endif
 
             #if os(macOS)
-                Button {
-                    SFSafariApplication.showPreferencesForExtension(
-                        withIdentifier: extensionBundleIdentifier
-                    ) { (error) in
-                        NSLog("Error \(String(describing: error))")
-                    }
-                } label: {
-                    Text("Open Safari Extensions Preferences")
-                }
-            #else
-                Text(
-                    "You can turn on \(appName)’s extension in Safari Extensions preferences."
-                )
-                .customText()
-
-                VStack(alignment: .leading, spacing: 20) {
-                    HStack(spacing: 8) {
-                        VStack {
-                            Button {
-                                instructionShown = .safari
-                            } label: {
-                                Text("Safari")
-                                    .if(
-                                        condition: instructionShown
-                                            == .safari
-                                    ) {
-                                        $0.bold()
-                                    }
-                            }
-                        }
-                        VStack {
-                            Button {
-                                instructionShown = .global
-                            } label: {
-                                Text("Settings")
-                                    .if(
-                                        condition: instructionShown
-                                            == .global
-                                    ) {
-                                        $0.bold()
-                                    }
-                            }
-                        }
-                    }
-                    .buttonStyle(.bordered)
-
-                    switch instructionShown {
-                    case .global:
-                        InstructionsViewiOSGlobal()
-                    case .safari:
-                        InstructionsViewiOSSafari()
-                    }
-                }
-            #endif
-        }
-        .padding()
-        #if os(macOS)
-            .onAppear {
-                SFSafariExtensionManager.getStateOfSafariExtension(
+            Button {
+                SFSafariApplication.showPreferencesForExtension(
                     withIdentifier: extensionBundleIdentifier
-                ) { (state, error) in
-                    extensionState = state
-                    if let error = error {
-                        print("Error getting extension state: \(error)")
-                        return
+                ) { (error) in
+                    NSLog("Error \(String(describing: error))")
+                }
+            } label: {
+                Text("Open Safari Extensions Preferences")
+            }
+            #else
+            Text(
+                "You can turn on \(appName)’s extension in Safari Extensions preferences."
+            )
+            .customText()
+
+            VStack(alignment: .leading, spacing: 20) {
+                HStack(spacing: 8) {
+                    VStack {
+                        Button {
+                            instructionShown = .safari
+                        } label: {
+                            Text("Safari")
+                                .if(
+                                    condition: instructionShown
+                                        == .safari
+                                ) {
+                                    $0.bold()
+                                }
+                        }
                     }
+                    VStack {
+                        Button {
+                            instructionShown = .global
+                        } label: {
+                            Text("Settings")
+                                .if(
+                                    condition: instructionShown
+                                        == .global
+                                ) {
+                                    $0.bold()
+                                }
+                        }
+                    }
+                }
+                .buttonStyle(.bordered)
+
+                switch instructionShown {
+                case .global:
+                    InstructionsViewiOSGlobal()
+                case .safari:
+                    InstructionsViewiOSSafari()
                 }
             }
+            #endif
+
+            if let subscriptionActive {
+                if subscriptionActive {
+                    Text("Subscription is active")
+                } else {
+                    Text("Subscription is not active")
+                }
+            } else {
+                ProgressView()
+            }
+            Button {
+                showStore = true
+            } label: {
+                Label("Open Store", systemImage: "cart")
+            }
+        }
+        .padding()
+        .sheet(isPresented: $showStore) {
+            if #available(macOS 15.0, *) {
+                StoreView()
+                    .presentationSizing(.fitted)
+            } else {
+                StoreView()
+                // Fallback on earlier versions
+            }
+        }
+        .task {
+            guard let products = try? await Product.products(for: ["activate.annual", "activate.monthly"]) else {
+                return
+            }
+
+            let activateSubscriptionGroup = "CD8720D7"
+
+            for product in products {
+                let entitlement = await product.currentEntitlement
+                switch entitlement {
+                case .verified(let transaction):
+                    if transaction.subscriptionGroupID == activateSubscriptionGroup {
+                        subscriptionActive = true
+                    }
+                case .unverified(_, let error):
+                    print("Subscription is not active: \(error.localizedDescription)")
+                case .none:
+                    break
+                }
+            }
+        }
+        #if os(macOS)
+        .onAppear {
+            SFSafariExtensionManager.getStateOfSafariExtension(
+                withIdentifier: extensionBundleIdentifier
+            ) { (state, error) in
+                extensionState = state
+                if let error = error {
+                    print("Error getting extension state: \(error)")
+                    return
+                }
+            }
+        }
         #endif
     }
 }
