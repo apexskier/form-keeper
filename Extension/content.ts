@@ -1,3 +1,5 @@
+import type { Message } from "./types";
+
 (function () {
   function makeKey() {
     return `form-saver-${window.location.href}`;
@@ -324,4 +326,12 @@
   }
 
   setupEventHandlers(document.body);
+
+  browser.runtime.onMessage.addListener((message: Message, sender, sendResponse) => {
+    if (message.action === "clear") {
+      if (window.confirm("Clear saved form data for this page?")) {
+        localStorage.removeItem(makeKey());
+      }
+    }
+  });
 })();

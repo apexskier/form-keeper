@@ -1,8 +1,15 @@
 {
   "dependencies": {
+    "rollup": "^4.28.1",
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "npm run build:typescript && npm run build:content && npm run build:popup",
+    "build:typescript": "tsc",
+    "build:content": "rollup Extension/dst/content.js --file Extension/Resources/content.js --format iife",
+    "build:popup": "rollup Extension/dst/popup.js --file Extension/Resources/popup.js --format iife"
+  },
+  "devDependencies": {
+    "@types/firefox-webext-browser": "^120.0.4"
   }
 }

@@ -39,7 +39,6 @@
 		C5DAA1792CFE99B5002AB3F1 /* FormKeeper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FormKeeper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5DAA1972CFE99B5002AB3F1 /* FormKeeper Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "FormKeeper Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5DAA1DF2D02A3F1002AB3F1 /* typescriptIn.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = typescriptIn.xcfilelist; sourceTree = "<group>"; };
-		C5DAA1E32D02A55C002AB3F1 /* typescriptOut.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = typescriptOut.xcfilelist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,7 +49,6 @@
 				Assets.xcassets,
 				ContentView.swift,
 				InstructionsView.swift,
-				ViewController.swift,
 			);
 			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper */;
 		};
@@ -122,7 +120,6 @@
 			isa = PBXGroup;
 			children = (
 				C5DAA1DF2D02A3F1002AB3F1 /* typescriptIn.xcfilelist */,
-				C5DAA1E32D02A55C002AB3F1 /* typescriptOut.xcfilelist */,
 				C5DAA1612CFE99B4002AB3F1 /* App */,
 				C5DAA16A2CFE99B5002AB3F1 /* Extension */,
 				C55154802D04BD2B00D27EF4 /* FormKeeper.entitlements */,
@@ -168,6 +165,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C5DAA1C72CFE99B5002AB3F1 /* Build configuration list for PBXNativeTarget "FormKeeper Extension" */;
 			buildPhases = (
+				C53BDCC12D055652008B1B70 /* ShellScript */,
 				C5DAA1932CFE99B5002AB3F1 /* Sources */,
 				C5DAA1942CFE99B5002AB3F1 /* Frameworks */,
 				C5DAA1952CFE99B5002AB3F1 /* Resources */,
@@ -238,6 +236,29 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		C53BDCC12D055652008B1B70 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"$(SRCROOT)/typescriptIn.xcfilelist",
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Extension/Resources/popup.js",
+				"$(SRCROOT)/Extension/Resources/content.js",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "PATH=\"$PATH:/opt/homebrew/bin\"\n\nnpm run build\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C5DAA1752CFE99B5002AB3F1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -273,6 +294,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Extension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "FormKeeper Extension";
@@ -311,6 +333,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6D9DLTQJSN;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Extension/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "FormKeeper Extension";
