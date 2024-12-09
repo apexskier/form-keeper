@@ -16,6 +16,37 @@ extension Text {
     }
 }
 
+struct ExtensionStateManagementModifier: ViewModifier {
+    @Environment(\.appearsActive) private var appearsActive: Bool
+    @Binding var extensionState: SFSafariExtensionState?
+
+    private func updateState() {
+        SFSafariExtensionManager.getStateOfSafariExtension(
+            withIdentifier: extensionBundleIdentifier
+        ) { (state, error) in
+            extensionState = state
+            if let error = error {
+                print("Error getting extension state: \(error)")
+                return
+            }
+        }
+    }
+
+    func body(content: Content) -> some View {
+        if #available(macOS 14.0, *) {
+            content.onChange(of: appearsActive, initial: true) { old, new in
+                if new {
+                    updateState()
+                }
+            }
+        } else {
+            content.onAppear {
+                updateState()
+            }
+        }
+    }
+}
+
 extension View {
     func bold_() -> some View {
         if #available(macOS 13.0, iOS 16.0, *) {
@@ -145,19 +176,7 @@ struct ContentView: View {
             .frame(maxWidth: 400)
             .lineLimit(nil)
         }
-        #if os(macOS)
-        .onAppear {
-            SFSafariExtensionManager.getStateOfSafariExtension(
-                withIdentifier: extensionBundleIdentifier
-            ) { (state, error) in
-                extensionState = state
-                if let error = error {
-                    print("Error getting extension state: \(error)")
-                    return
-                }
-            }
-        }
-        #endif
+        .modifier(ExtensionStateManagementModifier(extensionState: $extensionState))
     }
 }
 

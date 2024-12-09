@@ -42,6 +42,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		C57648BA2D0764A100641785 /* Exceptions for "Shared" folder in "FormKeeper" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Store.swift,
+			);
+			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper */;
+		};
+		C57648BB2D0764A100641785 /* Exceptions for "Shared" folder in "FormKeeper Extension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Store.swift,
+			);
+			target = C5DAA1962CFE99B5002AB3F1 /* FormKeeper Extension */;
+		};
 		C5DAA1C62CFE99B5002AB3F1 /* Exceptions for "App" folder in "FormKeeper" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -72,6 +86,15 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		C57648B62D07648000641785 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				C57648BA2D0764A100641785 /* Exceptions for "Shared" folder in "FormKeeper" target */,
+				C57648BB2D0764A100641785 /* Exceptions for "Shared" folder in "FormKeeper Extension" target */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		C5DAA1612CFE99B4002AB3F1 /* App */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -122,6 +145,7 @@
 		C5DAA15C2CFE99B4002AB3F1 = {
 			isa = PBXGroup;
 			children = (
+				C57648B62D07648000641785 /* Shared */,
 				C56E7FC52D068A0600E61A9E /* FormKeeper-Info.plist */,
 				C5DAA1612CFE99B4002AB3F1 /* App */,
 				C5DAA16A2CFE99B5002AB3F1 /* Extension */,

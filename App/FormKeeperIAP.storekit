@@ -14,7 +14,21 @@
 
   ],
   "products" : [
-
+    {
+      "displayPrice" : "39.99",
+      "familyShareable" : true,
+      "internalID" : "D997744A",
+      "localizations" : [
+        {
+          "description" : "",
+          "displayName" : "Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "activate.lifetime",
+      "referenceName" : "Lifetime",
+      "type" : "NonConsumable"
+    }
   ],
   "settings" : {
     "_failTransactionsEnabled" : false,
@@ -101,15 +115,7 @@
           "subscriptionGroupID" : "CD8720D7",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
-            {
-              "displayPrice" : "8.99",
-              "internalID" : "67365FCD",
-              "isEligible" : true,
-              "offerID" : "activate.annual.win-back",
-              "paymentMode" : "payUpFront",
-              "referenceName" : "Annual Win-Back",
-              "subscriptionPeriod" : "P6M"
-            }
+
           ]
         },
         {
@@ -120,7 +126,7 @@
 
           ],
           "displayPrice" : "1.99",
-          "familyShareable" : false,
+          "familyShareable" : true,
           "groupNumber" : 1,
           "internalID" : "CB224CE2",
           "introductoryOffer" : {

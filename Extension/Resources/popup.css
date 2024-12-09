@@ -3,11 +3,18 @@
 }
 
 body {
-    width: 100px;
-    padding: 10px;
+    width: 180px;
+    padding: 12px;
 
     font-family: system-ui;
-    text-align: center;
+}
+
+body *:first-child {
+    margin-top: 0;
+}
+
+body *:last-child {
+    margin-bottom: 0;
 }
 
 @media (prefers-color-scheme: dark) {

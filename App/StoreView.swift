@@ -2,43 +2,22 @@ import SafariServices
 import StoreKit
 import SwiftUI
 
-let subscriptionGroupID = "CD8720D7"
-
 struct StoreView: View {
     @Binding var showStore: Bool
 
-    @State private var subscriptionActive: Bool? = nil {
-        didSet {
-            if let subscriptionActive {
-                SFSafariApplication.dispatchMessage(
-                    withName: "subscriptionActive",
-                    toExtensionWithIdentifier: extensionBundleIdentifier,
-                    userInfo: ["subscriptionActive": subscriptionActive]
-                ) { error in
-                    if let error {
-                        debugPrint("Failed to message extension: \(error))")
-                    }
-                }
-            }
-        }
-    }
+    @State private var paidActive: Bool? = nil
 
     var body: some View {
         VStack(spacing: 8) {
-            if let subscriptionActive {
-                Text("Subscription is \(subscriptionActive ? "" : "not ")active")
+            if let paidActive {
+                Text("\(appName) is \(paidActive ? "" : "not ")active")
             } else {
                 ProgressView()
             }
             Button {
-                subscriptionActive?.toggle()
-            } label: {
-                Text("Send debug message")
-            }
-            Button {
                 showStore = true
             } label: {
-                Label("Open Store", systemImage: "cart")
+                Label(paidActive == true ? "Manage" : "Activate", systemImage: "cart")
             }
         }
         .sheet(isPresented: $showStore) {
@@ -51,29 +30,7 @@ struct StoreView: View {
             }
         }
         .task {
-            guard
-                let products = try? await Product.products(for: [
-                    "activate.annual", "activate.monthly",
-                ])
-            else {
-                return
-            }
-
-            for product in products {
-                let entitlement = await product.currentEntitlement
-                switch entitlement {
-                case .verified(let transaction):
-                    if transaction.subscriptionGroupID == subscriptionGroupID {
-                        subscriptionActive = true
-                    }
-                case .unverified(_, let error):
-                    print("Subscription is not active: \(error.localizedDescription)")
-                case .none:
-                    break
-                }
-            }
-
-            subscriptionActive = false
+            paidActive = await isSubscriptionActive()
         }
         .onAppear {
             Task(priority: .background) {
@@ -87,12 +44,12 @@ struct StoreView: View {
                         // Remove access to the product identified by transaction.productID.
                         // Transaction.revocationReason provides details about
                         // the revoked transaction.
-                        subscriptionActive = false
+                        paidActive = false
                     } else if let expirationDate = transaction.expirationDate,
                         expirationDate < Date()
                     {
                         // Do nothing, this subscription is expired.
-                        subscriptionActive = false
+                        paidActive = false
                     } else if transaction.isUpgraded {
                         // Do nothing, there is an active transaction
                         // for a higher level of service.
@@ -101,7 +58,7 @@ struct StoreView: View {
                         // Provide access to the product identified by
                         // transaction.productID.
                         if transaction.subscriptionGroupID == subscriptionGroupID {
-                            subscriptionActive = true
+                            paidActive = true
                         }
                     }
                 }

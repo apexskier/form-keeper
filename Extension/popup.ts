@@ -21,33 +21,37 @@ if (button) {
 
 addEventListener("DOMContentLoaded", () => {
   const activateButtonEl = document.getElementById("activate");
-  activateButtonEl?.addEventListener("click", () => {
-    browser.runtime.sendMessage({ action: "activate" });
+  activateButtonEl?.addEventListener("click", async () => {
+    const response = await browser.runtime.sendMessage({ action: "activate" });
+    if (response) {
+      updateActiveEl(response.subscriptionActive);
+    }
   });
 
-  const activatedEl = document.getElementById("activated");
-  if (activatedEl) {
-    browser.runtime.onMessage.addListener((message: Message) => {
-      if (message.action === "subscriptionActive") {
-        if (message.subscriptionActive) {
-          activatedEl.textContent = "active!";
-        } else {
-          activatedEl.textContent = "inactive!";
-        }
-      }
-    });
-
-    browser.runtime
-      .sendMessage({ action: "checkActiveSubscription" })
-      .then((response: { echo: unknown; subscriptionActive: boolean }) => {
-        if (!response) {
-          return;
-        }
-        if (response.subscriptionActive) {
-          activatedEl.textContent = "active!";
-        } else {
-          activatedEl.textContent = "inactive!";
-        }
-      });
+  function updateActiveEl(activated: boolean) {
+    const activatedEl = document.getElementById("activated");
+    if (!activatedEl) {
+      return;
+    }
+    if (activated) {
+      activatedEl.textContent = "active!";
+    } else {
+      activatedEl.textContent = "inactive!";
+    }
   }
+
+  browser.runtime.onMessage.addListener((message: Message) => {
+    if (message.action === "subscriptionActive") {
+      updateActiveEl(message.subscriptionActive);
+    }
+  });
+
+  browser.runtime
+    .sendMessage({ action: "checkActiveSubscription" })
+    .then((response: { echo: unknown; subscriptionActive: boolean }) => {
+      if (!response) {
+        return;
+      }
+      updateActiveEl(response.subscriptionActive);
+    });
 });

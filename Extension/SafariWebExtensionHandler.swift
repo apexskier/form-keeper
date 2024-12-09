@@ -9,34 +9,6 @@ import SafariServices
 import StoreKit
 import os.log
 
-let subscriptionGroupID = "CD8720D7"
-
-func isSubscriptionActive() async -> Bool {
-    guard
-        let products = try? await Product.products(for: [
-            "activate.annual", "activate.monthly",
-        ])
-    else {
-        return false
-    }
-
-    for product in products {
-        let entitlement = await product.currentEntitlement
-        switch entitlement {
-        case .verified(let transaction):
-            if transaction.subscriptionGroupID == subscriptionGroupID {
-                return true
-            }
-        case .unverified(_, let error):
-            print("Subscription is not active: \(error.localizedDescription)")
-        case .none:
-            break
-        }
-    }
-
-    return false
-}
-
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     func beginRequest(with context: NSExtensionContext) {
         let request = context.inputItems.first as? NSExtensionItem
@@ -56,20 +28,64 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             }
             switch action {
             case "checkActiveSubscription":
-                let subscriptionActive = await isSubscriptionActive()
-
-                let response = NSExtensionItem()
-                response.userInfo = [
-                    messageKey: ["subscriptionActive": subscriptionActive]
-                ]
-                context.completeRequest(returningItems: [response]) { expired in
-                    print("expired: \(expired)")
+                if !(await context.completeRequest(returningMessage: [
+                    "subscriptionActive": await isSubscriptionActive()
+                ])) {
+                    print("failed")
                 }
             case "activate":
-                NSWorkspace.shared.open(URL(string: "form-keeper://activate")!)
+                print("")
+                if await isSubscriptionActive() {
+                    if !(await context.completeRequest(returningMessage: [
+                        "subscriptionActive": true
+                    ])) {
+                        print("failed")
+                    }
+                } else {
+                    print("opening link")
+                    if NSWorkspace.shared.open(URL(string: "form-keeper://activate")!) {
+                        Task {
+                            // wait for one transaction to change, then attempt to signal back to the extension to indicate purchase
+                            print("waiting for update")
+                            let _ = await Transaction.updates.first(where: { _ in true })
+                            print("returning update")
+                            if !(await context.completeRequest(returningMessage: [
+                                "subscriptionActive": await isSubscriptionActive()
+                            ])) {
+                                print("failed")
+                            }
+                        }
+                    }
+                }
             default:
                 break
             }
         }
+    }
+}
+
+extension NSExtensionContext {
+    func completeRequest(returningItems items: [Any]?) async -> Bool {
+        await withCheckedContinuation { continuation in
+            completeRequest(returningItems: items) { expired in
+                continuation.resume(with: .success(expired))
+            }
+        }
+    }
+
+    func completeRequest(returningMessage: Any) async -> Bool {
+        let messageKey: String
+        if #available(iOS 15.0, macOS 11.0, *) {
+            messageKey = SFExtensionMessageKey
+        } else {
+            messageKey = "message"
+        }
+
+        let response = NSExtensionItem()
+        response.userInfo = [
+            messageKey: returningMessage
+        ]
+
+        return await completeRequest(returningItems: [response])
     }
 }
