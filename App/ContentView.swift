@@ -43,9 +43,7 @@ struct ContentView: View {
     }
     @State private var instructionShown: Instruction = .safari
 
-    @State private var showStore = false
-
-    @State private var subscriptionActive: Bool? = nil
+    @Binding var showStore: Bool
 
     var turnOnText: some View {
         Text(
@@ -53,7 +51,6 @@ struct ContentView: View {
         )
         .customText()
     }
-
 
     var body: some View {
         ScrollView {
@@ -90,7 +87,9 @@ struct ContentView: View {
                             withIdentifier: extensionBundleIdentifier
                         ) { (error) in
                             if let error = error {
-                                print("Error showing Safari extension preferences: \(String(describing: error))")
+                                print(
+                                    "Error showing Safari extension preferences: \(String(describing: error))"
+                                )
                             }
                         }
                     } label: {
@@ -140,62 +139,11 @@ struct ContentView: View {
                 }
                 #endif
 
-                VStack(spacing: 8) {
-                    if let subscriptionActive {
-                        if subscriptionActive {
-                            Text("Subscription is active")
-                        } else {
-                            Text("Subscription is not active")
-                        }
-                    } else {
-                        ProgressView()
-                    }
-                    Button {
-                        showStore = true
-                    } label: {
-                        Label("Open Store", systemImage: "cart")
-                    }
-                }
+                StoreView(showStore: $showStore)
             }
             .padding()
             .frame(maxWidth: 400)
             .lineLimit(nil)
-        }
-        .sheet(isPresented: $showStore) {
-            if #available(macOS 15.0, iOS 18.0, *) {
-                StoreView()
-                    .presentationSizing(.fitted)
-            } else {
-                StoreView()
-                // Fallback on earlier versions
-            }
-        }
-        .task {
-            guard
-                let products = try? await Product.products(for: [
-                    "activate.annual", "activate.monthly",
-                ])
-            else {
-                return
-            }
-
-            let activateSubscriptionGroup = "CD8720D7"
-
-            for product in products {
-                let entitlement = await product.currentEntitlement
-                switch entitlement {
-                case .verified(let transaction):
-                    if transaction.subscriptionGroupID == activateSubscriptionGroup {
-                        subscriptionActive = true
-                    }
-                case .unverified(_, let error):
-                    print("Subscription is not active: \(error.localizedDescription)")
-                case .none:
-                    break
-                }
-            }
-
-            subscriptionActive = false
         }
         #if os(macOS)
         .onAppear {
@@ -214,5 +162,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(showStore: .constant(false))
 }

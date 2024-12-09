@@ -15,12 +15,25 @@ struct MyMain {
     }
 }
 
+struct SharedView: View {
+    @State private var showStore = false
+
+    var body: some View {
+        ContentView(showStore: $showStore)
+            .onOpenURL { url in
+                if (url.absoluteString == "form-keeper://activate") {
+                    showStore = true
+                }
+            }
+    }
+}
+
 #if os(macOS)
 @available(macOS 13.0, *)
 struct ModernApp: App {
     var body: some Scene {
         Window(appName, id: "main") {
-            ContentView()
+            SharedView()
         }
         .windowResizability(.contentSize)
         .defaultPosition(.center)
@@ -30,7 +43,7 @@ struct ModernApp: App {
 struct OldApp: App {
     var body: some Scene {
         WindowGroup(id: "main") {
-            ContentView()
+            SharedView()
         }
     }
 }
@@ -39,7 +52,7 @@ struct OldApp: App {
 struct ModernApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SharedView()
                 .background()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -49,7 +62,7 @@ struct ModernApp: App {
 struct OldApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            SharedView()
         }
     }
 }

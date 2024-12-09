@@ -1,3 +1,18 @@
+type Message =
+  | {
+      action: "clear";
+    }
+  | {
+      action: "checkActiveSubscription";
+    }
+  | {
+      action: "activate";
+    }
+  | {
+      action: "subscriptionActive";
+      subscriptionActive: boolean;
+    };
+
 declare namespace browser.runtime {
   /**
    * Send a single message to a native application.
@@ -8,7 +23,17 @@ declare namespace browser.runtime {
    */
   function sendNativeMessage(
     application: string,
-    message: any,
+    message: Message,
     responseHandler?: (response: unknown) => void
-  ): Promise<any>;
+  ): Promise<unknown>;
+
+  function sendMessage(
+    message: Message,
+    options?: _SendMessageOptions
+  ): Promise<unknown>;
+  function sendMessage(
+    extensionId: string,
+    message: Message,
+    options?: _SendMessageOptions
+  ): Promise<unknown>;
 }
