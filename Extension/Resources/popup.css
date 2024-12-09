@@ -17,6 +17,10 @@ body *:last-child {
     margin-bottom: 0;
 }
 
+button {
+
+}
+
 @media (prefers-color-scheme: dark) {
     /* Dark Mode styles go here. */
 }

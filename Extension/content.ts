@@ -53,12 +53,11 @@ function getElementSelector(
     selectorParts.push(`#${formId}`);
   }
 
+  let elSelectorParts = [element.tagName.toLowerCase()];
   let elementId = element.getAttribute("id");
   if (elementId) {
-    selectorParts.push(`#${elementId}`);
+    elSelectorParts.push(`#${elementId}`);
   } else {
-    const elSelector: Array<string> = [];
-
     if (
       isOptionElement(element) ||
       element.type === "checkbox" ||
@@ -66,7 +65,7 @@ function getElementSelector(
     ) {
       const elementValue = element.value;
       if (elementValue) {
-        elSelector.push(`[value="${elementValue}"]`);
+        elSelectorParts.push(`[value="${elementValue}"]`);
       }
     }
 
@@ -78,14 +77,14 @@ function getElementSelector(
       }
       const elementName = element.name;
       if (elementName) {
-        elSelector.push(`[name="${elementName}"]`);
+        elSelectorParts.push(`[name="${elementName}"]`);
         return;
       }
 
       // this is non-standard, but shows up in a bunch of google things
       const jsname = element.getAttribute("jsname");
       if (jsname) {
-        elSelector.push(`[jsname="${jsname}"]`);
+        elSelectorParts.push(`[jsname="${jsname}"]`);
         return;
       }
     }
@@ -95,13 +94,9 @@ function getElementSelector(
     } else {
       getNameComponent(element.closest("select"));
     }
-
-    if (!elSelector.length) {
-      return null;
-    }
-
-    selectorParts.push(elSelector.join(""));
   }
+
+  selectorParts.push(elSelectorParts.join(""));
 
   let selector = selectorParts.join(" ");
 
@@ -144,6 +139,8 @@ function persistData(
   }
 }
 
+const restoredSoFar: Array<string> = [];
+
 function restoreData(
   node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
   value: string
@@ -152,15 +149,30 @@ function restoreData(
     return;
   }
   if (isOptionElement(node)) {
-    node.selected = value === "selected";
-    console.debug("restored selection to", node);
+    const from = node.selected;
+    const to = value === "selected";
+    if (from !== to) {
+      node.selected = to;
+      console.debug("restored selection to", node);
+      restoredSoFar.push(getElementSelector(node)!);
+    }
   } else if (node.type === "checkbox" || node.type === "radio") {
-    (node as HTMLInputElement).checked = value === "checked";
-    console.debug("restored check to", node);
+    const from = (node as HTMLInputElement).checked;
+    const to = value === "checked";
+    if (from !== to) {
+      (node as HTMLInputElement).checked = to;
+      console.debug("restored check to", node);
+      restoredSoFar.push(getElementSelector(node)!);
+    }
   } else if (!node.value) {
     // don't overwrite if the site has prefilled
-    node.value = value || "";
-    console.debug("restored value to", node);
+    const from = node.value;
+    const to = value || "";
+    if (from !== to) {
+      node.value = to;
+      console.debug("restored value to", node);
+      restoredSoFar.push(getElementSelector(node)!);
+    }
   }
 }
 
@@ -396,8 +408,17 @@ browser.runtime.onMessage.addListener(
         document.location = "form-keeper://activate";
         break;
       }
+      case "getSaved": {
+        const pageKey = makeKey();
+        const data =
+          (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+            | undefined
+            | Record<string, string>) || {};
+        sendResponse({ restoredSoFar: Array.from(new Set(restoredSoFar)), savedForPage: Object.keys(data) });
+        break;
+      }
       default:
-        console.warn("unexpected message", message.action)
+        console.warn("unexpected message", message.action);
     }
   }
 );

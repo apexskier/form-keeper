@@ -3,6 +3,7 @@ type Message =
   | { action: "checkActiveSubscription" }
   | { action: "activate" }
   | { action: "openApp" }
+  | { action: "getSaved" }
   | {
       action: "subscriptionActive";
       subscriptionActive: boolean;
