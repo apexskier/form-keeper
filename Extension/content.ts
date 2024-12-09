@@ -70,16 +70,30 @@ function getElementSelector(
       }
     }
 
-    if (!isOptionElement(element)) {
+    function getNameComponent(
+      element: null | HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
+    ) {
+      if (!element) {
+        return;
+      }
       const elementName = element.name;
       if (elementName) {
         elSelector.push(`[name="${elementName}"]`);
+        return;
       }
+
+      // this is non-standard, but shows up in a bunch of google things
+      const jsname = element.getAttribute("jsname");
+      if (jsname) {
+        elSelector.push(`[jsname="${jsname}"]`);
+        return;
+      }
+    }
+
+    if (!isOptionElement(element)) {
+      getNameComponent(element);
     } else {
-      const elementName = element.closest("select")?.name;
-      if (elementName) {
-        selectorParts.push(`[name="${elementName}"]`);
-      }
+      getNameComponent(element.closest("select"));
     }
 
     if (!elSelector.length) {
@@ -168,7 +182,7 @@ function findFormElements(
     return Array.from(node.querySelectorAll("option"));
   }
   return Array.from(
-    (node.querySelectorAll?.("textarea, input, select option") as NodeListOf<
+    (node.querySelectorAll?.(`textarea, input, select option`) as NodeListOf<
       HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
     >) ?? []
   ).filter(
