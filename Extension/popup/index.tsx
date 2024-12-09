@@ -1,14 +1,35 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
+import {
+  Code,
+  Group,
+  Heading,
+  HStack,
+  IconButton,
+  List,
+  Spinner,
+  StackSeparator,
+  Text,
+  useSlotRecipe,
+  VStack,
+} from "@chakra-ui/react";
+import { Provider } from "./components/ui/provider";
+import { Button } from "./components/ui/button";
+import { listSlotRecipe } from "./theme";
+import { LuFocus, LuPencilLine, LuSearchCheck } from "react-icons/lu";
 
 // Render your React component instead
 const root = createRoot(document.getElementById("root")!);
 
-root.render(<Main />);
+root.render(
+  <Provider>
+    <Main />
+  </Provider>
+);
 
 function ActivatedText({ activated }: { activated: null | boolean }) {
   if (activated === null) {
-    return <i>loading...</i>;
+    return <Spinner />;
   }
   return <>{activated ? "active!" : "inactive!"}</>;
 }
@@ -34,6 +55,50 @@ type failed = typeof failed;
 function useRerunEffect(): [unknown, () => void] {
   const [reload, setReload] = React.useState({});
   return [reload, () => setReload({})];
+}
+
+function SelectorDetail({ selector }: { selector: string }) {
+  return (
+    <HStack>
+      <Code>{selector}</Code>{" "}
+      <IconButton
+        aria-label="Focus element"
+        title="Focus element"
+        onClick={React.useCallback(async () => {
+          const tabId = await getCurrentTab();
+          if (!tabId) {
+            console.warn("couldn't get current tab");
+            return;
+          }
+          window.close();
+          const message: Message = { action: "focusElement", selector };
+          browser.tabs.sendMessage(tabId, message);
+        }, [])}
+        size="xs"
+        variant="subtle"
+      >
+        <LuFocus />
+      </IconButton>
+      <IconButton
+        aria-label="Fill element"
+        title="Fill element"
+        onClick={React.useCallback(async () => {
+          const tabId = await getCurrentTab();
+          if (!tabId) {
+            console.warn("couldn't get current tab");
+            return;
+          }
+          window.close();
+          const message: Message = { action: "fillElement", selector };
+          browser.tabs.sendMessage(tabId, message);
+        }, [])}
+        size="xs"
+        variant="subtle"
+      >
+        <LuPencilLine />
+      </IconButton>
+    </HStack>
+  );
 }
 
 function PageDetails() {
@@ -70,45 +135,56 @@ function PageDetails() {
     })();
   }, [reloadDep]);
 
+  const recipe = useSlotRecipe<"root" | "item" | "indicator">({
+    recipe: listSlotRecipe,
+  });
+  const styles = recipe();
+
   let content: React.ReactNode;
   switch (data) {
     case loading:
-      content = <p>loading...</p>;
+      content = <Spinner />;
       break;
     case failed:
-      content = <p>Couldn't communicate with page, please restart Safari.</p>;
+      content = (
+        <Text>Couldn't communicate with page, please restart Safari.</Text>
+      );
       break;
     default:
       content = (
         <>
-          <h3>Restored fields</h3>
+          <Heading as="h3" size="md">
+            Restored fields
+          </Heading>
           {data.restoredSoFar.length ? (
-            <ul>
-              {data.restoredSoFar.map((item) => (
-                <li key={item}>
-                  <code>{item}</code>
-                </li>
+            <List.Root css={styles.root}>
+              {data.restoredSoFar.map((selector) => (
+                <List.Item key={selector} css={styles.item}>
+                  <SelectorDetail selector={selector} />
+                </List.Item>
               ))}
-            </ul>
+            </List.Root>
           ) : (
-            <p>Nothing yet.</p>
+            <Text>Nothing yet.</Text>
           )}
-          <h3>Saved fields</h3>
+          <Heading as="h3" size="md">
+            Saved fields
+          </Heading>
           <details>
             <summary>
               {data.savedForPage.length} item
               {data.savedForPage.length === 1 ? "" : "s"}
             </summary>
             {data.savedForPage.length ? (
-              <ul>
-                {data.savedForPage.map((item) => (
-                  <li key={item}>
-                    <code>{item}</code>
-                  </li>
+              <List.Root css={styles.root}>
+                {data.savedForPage.map((selector) => (
+                  <List.Item key={selector} css={styles.item}>
+                    <SelectorDetail selector={selector} />
+                  </List.Item>
                 ))}
-              </ul>
+              </List.Root>
             ) : (
-              <p>Nothing yet.</p>
+              <Text>Nothing yet.</Text>
             )}
           </details>
         </>
@@ -117,12 +193,13 @@ function PageDetails() {
   }
 
   return (
-    <>
-      <h2>Current tab</h2>
+    <VStack align="start">
+      <Heading as="h2" size="lg">
+        Current tab
+      </Heading>
       {content}
-      <p>
-        <button onClick={reload}>Refresh</button>
-        <button
+      <Group>
+        <Button
           onClick={React.useCallback(async () => {
             const tabId = await getCurrentTab();
             if (!tabId) {
@@ -134,10 +211,13 @@ function PageDetails() {
             window.close();
           }, [])}
         >
-          Wipe Page
-        </button>
-      </p>
-    </>
+          Wipe Saved
+        </Button>
+        <Button onClick={reload} loading={data === loading}>
+          Refresh
+        </Button>
+      </Group>
+    </VStack>
   );
 }
 
@@ -190,16 +270,16 @@ function Main() {
   }, []);
 
   return (
-    <>
-      <p>
-        FormKeeper is <ActivatedText activated={activated} />
-      </p>
-      {activated === false && (
-        <p>
-          <button onClick={handleActivateClick}>Activate</button>
-        </p>
-      )}
+    <VStack separator={<StackSeparator />} width="100%">
+      <VStack>
+        <Text>
+          FormKeeper is <ActivatedText activated={activated} />
+        </Text>
+        {activated === false && (
+          <Button onClick={handleActivateClick}>Activate</Button>
+        )}
+      </VStack>
       <PageDetails />
-    </>
+    </VStack>
   );
 }

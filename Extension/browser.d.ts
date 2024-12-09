@@ -4,6 +4,7 @@ type Message =
   | { action: "activate" }
   | { action: "openApp" }
   | { action: "getSaved" }
+  | { action: "focusElement" | "fillElement"; selector: string }
   | {
       action: "subscriptionActive";
       subscriptionActive: boolean;

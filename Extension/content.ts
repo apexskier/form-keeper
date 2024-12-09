@@ -143,7 +143,8 @@ const restoredSoFar: Array<string> = [];
 
 function restoreData(
   node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
-  value: string
+  value: string,
+  overwrite: boolean = false
 ) {
   if (!subscriptionActive) {
     return;
@@ -164,7 +165,7 @@ function restoreData(
       console.debug("restored check to", node);
       restoredSoFar.push(getElementSelector(node)!);
     }
-  } else if (!node.value) {
+  } else if (overwrite || !node.value) {
     // don't overwrite if the site has prefilled
     const from = node.value;
     const to = value || "";
@@ -419,6 +420,42 @@ browser.runtime.onMessage.addListener(
           restoredSoFar: Array.from(new Set(restoredSoFar)),
           savedForPage: Object.keys(data),
         });
+        break;
+      }
+      case "focusElement": {
+        const element = document.querySelector(message.selector);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          if (element instanceof HTMLElement) {
+            element.focus();
+            if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
+              (element as HTMLTextAreaElement | HTMLInputElement).select();
+            }
+          }
+        }
+        break;
+      }
+      case "fillElement": {
+        const element = document.querySelector(message.selector) as
+          | HTMLTextAreaElement
+          | HTMLInputElement
+          | HTMLOptionElement;
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+          // defer cost of JSON.parse to when we actually need it
+          const pageKey = makeKey();
+          const data =
+            (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+              | undefined
+              | Record<string, string>) || {};
+          restoreData(element, data[message.selector], true);
+          if (element instanceof HTMLElement) {
+            element.focus();
+            if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
+              (element as HTMLTextAreaElement | HTMLInputElement).select();
+            }
+          }
+        }
         break;
       }
       default:
