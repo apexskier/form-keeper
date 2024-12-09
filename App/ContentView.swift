@@ -89,7 +89,9 @@ struct ContentView: View {
                         SFSafariApplication.showPreferencesForExtension(
                             withIdentifier: extensionBundleIdentifier
                         ) { (error) in
-                            print("Error \(String(describing: error))")
+                            if let error = error {
+                                print("Error showing Safari extension preferences: \(String(describing: error))")
+                            }
                         }
                     } label: {
                         Text("Open Safari Extensions Preferences")
