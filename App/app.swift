@@ -1,6 +1,6 @@
 import SwiftUI
 
-let extensionBundleIdentifier = "com.camlittle.form-keeper.Extension"
+let extensionBundleIdentifier = "com.camlittle.form-keeper.extension"
 
 let appName = Bundle.main.infoDictionary?["CFBundleName"] as? String ?? "FormKeeper"
 
