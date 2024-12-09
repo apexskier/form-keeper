@@ -305,6 +305,7 @@ function setupEventHandlers(root: HTMLElement) {
           }
         });
         toSaveSelectors.clear();
+        localStorage.setItem(pageKey, JSON.stringify(data));
       });
     });
   });
@@ -414,7 +415,10 @@ browser.runtime.onMessage.addListener(
           (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
             | undefined
             | Record<string, string>) || {};
-        sendResponse({ restoredSoFar: Array.from(new Set(restoredSoFar)), savedForPage: Object.keys(data) });
+        sendResponse({
+          restoredSoFar: Array.from(new Set(restoredSoFar)),
+          savedForPage: Object.keys(data),
+        });
         break;
       }
       default:
