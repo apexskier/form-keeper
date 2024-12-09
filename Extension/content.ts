@@ -30,7 +30,7 @@ if (!window.requestIdleCallback) {
           return Math.max(0, relaxation + (performance.now() - start));
         },
       });
-    }, relaxation);
+    }, relaxation) as unknown as number;
   };
 }
 
@@ -383,12 +383,21 @@ setupEventHandlers(document.body);
 
 browser.runtime.onMessage.addListener(
   (message: Message, sender, sendResponse) => {
-    if (message.action === "clear") {
-      if (window.confirm("Clear saved form data for this page and reload?")) {
-        localStorage.removeItem(makeKey());
-        isClearing = true;
-        window.location.reload();
+    switch (message.action) {
+      case "clear": {
+        if (window.confirm("Clear saved form data for this page and reload?")) {
+          localStorage.removeItem(makeKey());
+          isClearing = true;
+          window.location.reload();
+        }
+        break;
       }
+      case "openApp": {
+        document.location = "form-keeper://activate";
+        break;
+      }
+      default:
+        console.warn("unexpected message", message.action)
     }
   }
 );

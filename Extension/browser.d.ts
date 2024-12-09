@@ -1,13 +1,8 @@
 type Message =
-  | {
-      action: "clear";
-    }
-  | {
-      action: "checkActiveSubscription";
-    }
-  | {
-      action: "activate";
-    }
+  | { action: "clear" }
+  | { action: "checkActiveSubscription" }
+  | { action: "activate" }
+  | { action: "openApp" }
   | {
       action: "subscriptionActive";
       subscriptionActive: boolean;

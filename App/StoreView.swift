@@ -2,6 +2,42 @@ import SafariServices
 import StoreKit
 import SwiftUI
 
+struct StoreSheet: View {
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        if #available(macOS 15.0, iOS 17.0, *) {
+            SubscriptionStoreView(groupID: subscriptionGroupID)
+                .storeButton(.visible, for: .restorePurchases, .redeemCode)
+        } else if #available(macOS 14.0, iOS 17.0, *) {
+            VStack {
+                HStack {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Label("Close", systemImage: "xmark")
+                    }
+                    .labelStyle(.iconOnly)
+                    Spacer()
+                }
+                .padding()
+                .buttonStyle(.borderless)
+                StoreKit.StoreView(ids: [
+                    "activate.monthly", "activate.annual", "activate.lifetime",
+                ])
+                .storeButton(.visible, for: .restorePurchases)
+                .storeButton(.hidden, for: .cancellation)
+            }
+        } else {
+            // Fallback on earlier versions
+        }
+    }
+}
+
+#Preview("Sheet") {
+    StoreSheet()
+}
+
 struct StoreView: View {
     @Binding var showStore: Bool
 
@@ -21,12 +57,11 @@ struct StoreView: View {
             }
         }
         .sheet(isPresented: $showStore) {
-            if #available(macOS 15.0, iOS 17.0, *) {
-                SubscriptionStoreView(groupID: subscriptionGroupID)
-                    .storeButton(.visible, for: .restorePurchases, .redeemCode)
+            if #available(macOS 15.0, iOS 18.0, *) {
+                StoreSheet()
                     .presentationSizing(.fitted)
             } else {
-                // Fallback on earlier versions
+                StoreSheet()
             }
         }
         .task {
@@ -67,6 +102,6 @@ struct StoreView: View {
     }
 }
 
-#Preview {
+#Preview("View") {
     StoreView(showStore: .constant(false))
 }

@@ -16,6 +16,7 @@ extension Text {
     }
 }
 
+#if os(macOS)
 struct ExtensionStateManagementModifier: ViewModifier {
     @Environment(\.appearsActive) private var appearsActive: Bool
     @Binding var extensionState: SFSafariExtensionState?
@@ -46,6 +47,7 @@ struct ExtensionStateManagementModifier: ViewModifier {
         }
     }
 }
+#endif
 
 extension View {
     func bold_() -> some View {
@@ -176,7 +178,9 @@ struct ContentView: View {
             .frame(maxWidth: 400)
             .lineLimit(nil)
         }
+        #if os(macOS)
         .modifier(ExtensionStateManagementModifier(extensionState: $extensionState))
+        #endif
     }
 }
 

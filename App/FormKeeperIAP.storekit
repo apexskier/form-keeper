@@ -20,7 +20,7 @@
       "internalID" : "D997744A",
       "localizations" : [
         {
-          "description" : "",
+          "description" : "One-time purchase to activate FormKeeper.",
           "displayName" : "Lifetime",
           "locale" : "en_US"
         }
@@ -104,7 +104,7 @@
           "introductoryOffer" : null,
           "localizations" : [
             {
-              "description" : "",
+              "description" : "Activate, renewing once a year.",
               "displayName" : "Annual Subscription",
               "locale" : "en_US"
             }
@@ -136,7 +136,7 @@
           },
           "localizations" : [
             {
-              "description" : "",
+              "description" : "Activate, renewing once a month.",
               "displayName" : "Monthly Subscription",
               "locale" : "en_US"
             }

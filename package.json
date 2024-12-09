@@ -1,16 +1,20 @@
 {
   "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "rollup": "^4.28.1",
     "typescript": "^5.7.2"
   },
   "scripts": {
-    "build": "npm run build:typescript && npm run build:content && npm run build:popup && npm run build:background",
-    "build:typescript": "tsc",
-    "build:content": "rollup Extension/dst/content.js --file Extension/Resources/content.js --format iife",
-    "build:popup": "rollup Extension/dst/popup.js --file Extension/Resources/popup.js",
-    "build:background": "rollup Extension/dst/background.js --file Extension/Resources/background.js"
+    "build": "tsc && rollup -c"
   },
+  "type": "module",
   "devDependencies": {
-    "@types/firefox-webext-browser": "^120.0.4"
+    "@rollup/plugin-commonjs": "^28.0.1",
+    "@rollup/plugin-node-resolve": "^15.3.0",
+    "@rollup/plugin-replace": "^6.0.1",
+    "@types/firefox-webext-browser": "^120.0.4",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2"
   }
 }

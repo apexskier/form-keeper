@@ -3,7 +3,7 @@
 }
 
 body {
-    width: 180px;
+    min-width: 180px;
     padding: 12px;
 
     font-family: system-ui;

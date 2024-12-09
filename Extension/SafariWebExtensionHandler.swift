@@ -29,6 +29,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
             switch action {
             case "checkActiveSubscription":
                 if !(await context.completeRequest(returningMessage: [
+                    "action": "subscriptionActive",
                     "subscriptionActive": await isSubscriptionActive()
                 ])) {
                     print("failed")
@@ -37,23 +38,37 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 print("")
                 if await isSubscriptionActive() {
                     if !(await context.completeRequest(returningMessage: [
+                        "action": "subscriptionActive",
                         "subscriptionActive": true
                     ])) {
                         print("failed")
                     }
                 } else {
                     print("opening link")
-                    if NSWorkspace.shared.open(URL(string: "form-keeper://activate")!) {
+                    guard let url = URL(string: "form-keeper://activate") else {
+                        return
+                    }
+                    #if os(macOS)
+                    let opened = NSWorkspace.shared.open(url)
+                    #else
+                    let opened = await context.open(url)
+                    #endif
+                    if opened {
                         Task {
                             // wait for one transaction to change, then attempt to signal back to the extension to indicate purchase
-                            print("waiting for update")
                             let _ = await Transaction.updates.first(where: { _ in true })
-                            print("returning update")
                             if !(await context.completeRequest(returningMessage: [
+                                "action": "subscriptionActive",
                                 "subscriptionActive": await isSubscriptionActive()
                             ])) {
                                 print("failed")
                             }
+                        }
+                    } else {
+                        if !(await context.completeRequest(returningMessage: [
+                            "action": "openApp"
+                        ])) {
+                            print("failed")
                         }
                     }
                 }
