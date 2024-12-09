@@ -138,7 +138,7 @@ import type { Message } from "./types";
     }
     if (node.tagName === "INPUT") {
       return [node as HTMLInputElement].filter(
-        (node) => node.type !== "password"
+        (node) => !(node.type === "password" || node.type === "hidden")
       );
     }
     if (node.tagName === "SELECT") {
@@ -148,7 +148,7 @@ import type { Message } from "./types";
       (node.querySelectorAll?.("textarea, input, select option") as NodeListOf<
         HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
       >) ?? []
-    ).filter((node) => !(isInputElement(node) && node.type === "password"));
+    ).filter((node) => !(isInputElement(node) && (node.type === "password" || node.type === "hidden")));
   }
 
   function findChangableElements(
