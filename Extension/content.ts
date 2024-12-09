@@ -372,7 +372,7 @@ browser.runtime.onMessage.addListener(
     if (message.action === "clear") {
       if (window.confirm("Clear saved form data for this page and reload?")) {
         localStorage.removeItem(makeKey());
-        isClearing = false;
+        isClearing = true;
         window.location.reload();
       }
     }

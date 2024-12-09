@@ -1,18 +1,23 @@
-browser.tabs.query({ active: true }).then(function (currentTabs) {
-  const button = document.getElementById("clear") as HTMLButtonElement | null;
-  if (!button) {
-    return;
-  }
+const button = document.getElementById("clear") as HTMLButtonElement | null;
+if (button) {
+  button.addEventListener("click", async () => {
+    const currentTabs = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
 
-  button.disabled = false;
-
-  button.addEventListener("click", () => {
-    if (currentTabs[0]?.id) {
-      const message: Message = { action: "clear" };
-      browser.tabs.sendMessage(currentTabs[0].id, message);
+    if (currentTabs.length > 1) {
+      console.warn("Expected only one active tab, got", currentTabs);
     }
+
+    if (!currentTabs[0]?.id) {
+      return;
+    }
+
+    const message: Message = { action: "clear" };
+    await browser.tabs.sendMessage(currentTabs[0].id, message);
   });
-});
+}
 
 addEventListener("DOMContentLoaded", () => {
   const activateButtonEl = document.getElementById("activate");
