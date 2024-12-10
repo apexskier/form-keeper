@@ -5,11 +5,10 @@ import SwiftUI
 struct StoreSheet: View {
     @Environment(\.dismiss) var dismiss
 
+    @State private var freeTrialProduct: Product? = nil
+
     var body: some View {
-        if #available(macOS 15.0, iOS 17.0, *) {
-            SubscriptionStoreView(groupID: subscriptionGroupID)
-                .storeButton(.visible, for: .restorePurchases, .redeemCode)
-        } else {
+        ScrollView {
             VStack {
                 HStack {
                     Button {
@@ -22,11 +21,61 @@ struct StoreSheet: View {
                 }
                 .padding()
                 .buttonStyle(.borderless)
-                StoreKit.StoreView(ids: [
+
+                if let freeTrialProduct,
+                    let introOffer = freeTrialProduct.subscription?.introductoryOffer
+                {
+                    Button {
+                        Task {
+                            let result = try? await freeTrialProduct.purchase()
+                            switch result {
+                            case .success:
+                                dismiss()
+                            default:
+                                break
+                            }
+                        }
+                    } label: {
+                        Text("Try it Free for \(introOffer.period)")
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+
+                if #available(macOS 15.0, *) {
+                    StoreKit.StoreView(ids: [
+                        "activate.monthly", "activate.annual", "activate.lifetime",
+                    ])
+                    .productViewStyle(.compact)
+                    .storeButton(.visible, for: .restorePurchases)
+                    .storeButton(.visible, for: .redeemCode)
+                    .storeButton(.hidden, for: .cancellation)
+                } else {
+                    StoreKit.StoreView(ids: [
+                        "activate.monthly", "activate.annual", "activate.lifetime",
+                    ])
+                    .productViewStyle(.compact)
+                    .storeButton(.visible, for: .restorePurchases)
+                    .storeButton(.hidden, for: .cancellation)
+                }
+            }
+        }
+        .task {
+            guard
+                let products = try? await Product.products(for: [
                     "activate.monthly", "activate.annual", "activate.lifetime",
                 ])
-                .storeButton(.visible, for: .restorePurchases)
-                .storeButton(.hidden, for: .cancellation)
+            else {
+                return
+            }
+            for product in products {
+                if let introOffer = product.subscription?.introductoryOffer,
+                    introOffer.price == .zero
+                {
+                    if await product.subscription?.isEligibleForIntroOffer == true {
+                        self.freeTrialProduct = product
+                        return
+                    }
+                }
             }
         }
     }
@@ -45,15 +94,30 @@ struct StoreView: View {
         VStack(spacing: 8) {
             if let paidActive {
                 Text("\(appName) is \(paidActive ? "" : "not ")active")
+                    .if(condition: paidActive == false) {
+                        $0.bold()
+                    }
             } else {
                 ProgressView()
             }
-            Button {
-                showStore = true
-            } label: {
-                Label(paidActive == true ? "Manage" : "Activate", systemImage: "cart")
+            if paidActive == false {
+                Button {
+                    showStore = true
+                } label: {
+                    Label("Activate", systemImage: "cart")
+                }
+                .buttonStyle(.borderedProminent)
+            } else {
+                Button {
+                    showStore = true
+                } label: {
+                    Label("Manage", systemImage: "cart")
+                }
             }
         }
+        .padding()
+        .background(Material.thick)
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .sheet(isPresented: $showStore) {
             if #available(macOS 15.0, iOS 18.0, *) {
                 StoreSheet()
@@ -73,27 +137,7 @@ struct StoreView: View {
                         return
                     }
 
-                    if transaction.revocationDate != nil {
-                        // Remove access to the product identified by transaction.productID.
-                        // Transaction.revocationReason provides details about
-                        // the revoked transaction.
-                        paidActive = false
-                    } else if let expirationDate = transaction.expirationDate,
-                        expirationDate < Date()
-                    {
-                        // Do nothing, this subscription is expired.
-                        paidActive = false
-                    } else if transaction.isUpgraded {
-                        // Do nothing, there is an active transaction
-                        // for a higher level of service.
-                        return
-                    } else {
-                        // Provide access to the product identified by
-                        // transaction.productID.
-                        if transaction.subscriptionGroupID == subscriptionGroupID {
-                            paidActive = true
-                        }
-                    }
+                    paidActive = await isSubscriptionActive()
                 }
             }
         }

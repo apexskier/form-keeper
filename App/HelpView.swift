@@ -2,7 +2,7 @@ import SwiftUI
 import MarkdownUI
 
 struct HelpView: View {
-    var text: String? {
+    private var text: String? {
         guard let filepath = Bundle.main.url(forResource: "Help", withExtension: "md"),
               let contents = try? String(contentsOf: filepath) else {
             return nil

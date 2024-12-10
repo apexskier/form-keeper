@@ -5,7 +5,7 @@ let subscriptionGroupID = "CD8720D7"
 func isSubscriptionActive() async -> Bool {
     guard
         let products = try? await Product.products(for: [
-            "activate.annual", "activate.monthly",
+            "activate.annual", "activate.monthly", "activate.lifetime",
         ])
     else {
         return false
@@ -15,7 +15,9 @@ func isSubscriptionActive() async -> Bool {
         let entitlement = await product.currentEntitlement
         switch entitlement {
         case .verified(let transaction):
-            if transaction.subscriptionGroupID == subscriptionGroupID {
+            if transaction.subscriptionGroupID == subscriptionGroupID
+                || transaction.productID == "activate.lifetime"
+            {
                 return true
             }
         case .unverified(_, let error):
@@ -27,4 +29,3 @@ func isSubscriptionActive() async -> Bool {
 
     return false
 }
-

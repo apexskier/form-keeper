@@ -16,14 +16,7 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
         let request = context.inputItems.first as? NSExtensionItem
 
         Task {
-            let messageKey: String
-            if #available(iOS 15.0, macOS 11.0, *) {
-                messageKey = SFExtensionMessageKey
-            } else {
-                messageKey = "message"
-            }
-
-            guard let message = request?.userInfo?[messageKey] as? [String: Any],
+            guard let message = request?.userInfo?[SFExtensionMessageKey] as? [String: Any],
                 let action = message["action"] as? String
             else {
                 return
@@ -114,16 +107,9 @@ extension NSExtensionContext {
     }
 
     func completeRequest(returningMessage: Any) async -> Bool {
-        let messageKey: String
-        if #available(iOS 15.0, macOS 11.0, *) {
-            messageKey = SFExtensionMessageKey
-        } else {
-            messageKey = "message"
-        }
-
         let response = NSExtensionItem()
         response.userInfo = [
-            messageKey: returningMessage
+            SFExtensionMessageKey: returningMessage
         ]
 
         return await completeRequest(returningItems: [response])
