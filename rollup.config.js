@@ -6,6 +6,7 @@ export default [
   {
     input: ["Extension/dst/popup/index.js"],
     output: {
+      sourcemap: true,
       file: "Extension/Resources/popup.js",
     },
     plugins: [

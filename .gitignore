@@ -13,6 +13,7 @@ xcuserdata/
 .build/
 
 node_modules/
+*.map
 
 Extension/Resources/*.js
 Extension/dst/

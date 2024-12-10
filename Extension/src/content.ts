@@ -344,7 +344,7 @@ let mutationObserver = new MutationObserver((mutations) => {
         restoreData(node, data[elementSelector]);
       });
       removed.forEach((node) => {
-        persistData(node, data);
+        // persistData(node, data);
       });
       localStorage.setItem(pageKey, JSON.stringify(data));
     }
@@ -364,7 +364,7 @@ window.addEventListener("pagehide", () => {
   const data =
     (JSON.parse(savedData) as undefined | Record<string, string>) || {};
   findFormElements(document.body).forEach((node) => {
-    persistData(node, data);
+    // persistData(node, data);
   });
 
   localStorage.setItem(makeKey(), JSON.stringify(data));
