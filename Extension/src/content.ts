@@ -458,6 +458,11 @@ browser.runtime.onMessage.addListener(
         }
         break;
       }
+      case "subscriptionActive": {
+        subscriptionActive = message.subscriptionActive;
+        restoreAll();
+        break;
+      }
       default:
         console.warn("unexpected message", message.action);
     }

@@ -10,6 +10,8 @@ import StoreKit
 import os.log
 
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
+    private var activatePoller: Task<Void, Never>? = nil
+
     func beginRequest(with context: NSExtensionContext) {
         let request = context.inputItems.first as? NSExtensionItem
 
@@ -54,16 +56,39 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     let opened = await context.open(url)
                     #endif
                     if opened {
-                        Task {
-                            // wait for one transaction to change, then attempt to signal back to the extension to indicate purchase
-                            let _ = await Transaction.updates.first(where: { _ in true })
+                        activatePoller?.cancel()
+                        activatePoller = Task {
+                            while !(await isSubscriptionActive()) {
+                                if #available(macOSApplicationExtension 13.0, *) {
+                                    try? await Task.sleep(for: .seconds(5))
+                                } else {
+                                    try? await Task.sleep(nanoseconds: 5_000_000_000)
+                                }
+                                if Task.isCancelled {
+                                    return
+                                }
+                            }
+
                             if !(await context.completeRequest(returningMessage: [
                                 "action": "subscriptionActive",
-                                "subscriptionActive": await isSubscriptionActive()
+                                "subscriptionActive": true
                             ])) {
                                 print("failed")
                             }
                         }
+                        Timer.scheduledTimer(withTimeInterval: 60, repeats: false) { _ in
+                            self.activatePoller?.cancel()
+                        }
+//                        Task {
+//                            // wait for one transaction to change, then attempt to signal back to the extension to indicate purchase
+//                            let _ = await Transaction.updates.first(where: { _ in true })
+//                            if !(await context.completeRequest(returningMessage: [
+//                                "action": "subscriptionActive",
+//                                "subscriptionActive": await isSubscriptionActive()
+//                            ])) {
+//                                print("failed")
+//                            }
+//                        }
                     } else {
                         if !(await context.completeRequest(returningMessage: [
                             "action": "openApp"

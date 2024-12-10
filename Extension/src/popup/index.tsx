@@ -261,21 +261,28 @@ function Main() {
     })) as
       | { action: "subscriptionActive"; subscriptionActive: boolean }
       | { action: "openApp" };
+
+    const tabId = await getCurrentTab();
+    if (!tabId) {
+      console.warn("couldn't get current tab");
+      return;
+    }
+
     if (response.action == "openApp") {
       // can't open directly from a popup, so ask the current tab to open it
-
-      const tabId = await getCurrentTab();
-      if (!tabId) {
-        console.warn("couldn't get current tab");
-        return;
-      }
-
       const message: Message = { action: "openApp" };
       browser.tabs.sendMessage(tabId, message);
+      window.close();
     } else {
+      // update popup state
       setActivated(response.subscriptionActive);
+      // tell content script activation happened, and ask to restore fields
+      const message: Message = {
+        action: "subscriptionActive",
+        subscriptionActive: response.subscriptionActive,
+      };
+      browser.tabs.sendMessage(tabId, message);
     }
-    window.close();
   }, []);
 
   return (
