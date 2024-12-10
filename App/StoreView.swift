@@ -42,17 +42,13 @@ struct StoreSheet: View {
                 }
 
                 if #available(macOS 15.0, *) {
-                    StoreKit.StoreView(ids: [
-                        "activate.monthly", "activate.annual", "activate.lifetime",
-                    ])
+                    StoreKit.StoreView(ids: productIDs)
                     .productViewStyle(.compact)
                     .storeButton(.visible, for: .restorePurchases)
                     .storeButton(.visible, for: .redeemCode)
                     .storeButton(.hidden, for: .cancellation)
                 } else {
-                    StoreKit.StoreView(ids: [
-                        "activate.monthly", "activate.annual", "activate.lifetime",
-                    ])
+                    StoreKit.StoreView(ids: productIDs)
                     .productViewStyle(.compact)
                     .storeButton(.visible, for: .restorePurchases)
                     .storeButton(.hidden, for: .cancellation)
@@ -61,9 +57,7 @@ struct StoreSheet: View {
         }
         .task {
             guard
-                let products = try? await Product.products(for: [
-                    "activate.monthly", "activate.annual", "activate.lifetime",
-                ])
+                let products = try? await Product.products(for: productIDs)
             else {
                 return
             }

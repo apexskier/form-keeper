@@ -84,7 +84,7 @@
   },
   "subscriptionGroups" : [
     {
-      "id" : "CD8720D7",
+      "id" : "21604956",
       "localizations" : [
 
       ],
@@ -105,14 +105,14 @@
           "localizations" : [
             {
               "description" : "Activate, renewing once a year.",
-              "displayName" : "Annual Subscription",
+              "displayName" : "Annual",
               "locale" : "en_US"
             }
           ],
           "productID" : "activate.annual",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Annual",
-          "subscriptionGroupID" : "CD8720D7",
+          "subscriptionGroupID" : "21604956",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
 
@@ -137,14 +137,14 @@
           "localizations" : [
             {
               "description" : "Activate, renewing once a month.",
-              "displayName" : "Monthly Subscription",
+              "displayName" : "Monthly",
               "locale" : "en_US"
             }
           ],
           "productID" : "activate.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Monthly",
-          "subscriptionGroupID" : "CD8720D7",
+          "subscriptionGroupID" : "21604956",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
 
