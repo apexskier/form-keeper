@@ -90,6 +90,8 @@
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
 			buildPhase = C5DAA1952CFE99B5002AB3F1 /* Resources */;
 			membershipExceptions = (
+				Resources/background.js.map,
+				Resources/content.js.map,
 				Resources/popup.js.map,
 			);
 		};
