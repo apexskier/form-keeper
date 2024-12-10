@@ -361,7 +361,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.web-extension";
 				PRODUCT_NAME = "FormKeeper Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -400,7 +400,7 @@
 					"-framework",
 					SafariServices,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.extension";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.camlittle.form-keeper.web-extension";
 				PRODUCT_NAME = "FormKeeper Extension";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
