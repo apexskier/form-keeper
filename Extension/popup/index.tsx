@@ -57,47 +57,49 @@ function useRerunEffect(): [unknown, () => void] {
   return [reload, () => setReload({})];
 }
 
-function SelectorDetail({ selector }: { selector: string }) {
+function FocusSelectorButton({ selector }: { selector: string }) {
   return (
-    <HStack>
-      <Code>{selector}</Code>{" "}
-      <IconButton
-        aria-label="Focus element"
-        title="Focus element"
-        onClick={React.useCallback(async () => {
-          const tabId = await getCurrentTab();
-          if (!tabId) {
-            console.warn("couldn't get current tab");
-            return;
-          }
-          window.close();
-          const message: Message = { action: "focusElement", selector };
-          browser.tabs.sendMessage(tabId, message);
-        }, [])}
-        size="xs"
-        variant="subtle"
-      >
-        <LuFocus />
-      </IconButton>
-      <IconButton
-        aria-label="Fill element"
-        title="Fill element"
-        onClick={React.useCallback(async () => {
-          const tabId = await getCurrentTab();
-          if (!tabId) {
-            console.warn("couldn't get current tab");
-            return;
-          }
-          window.close();
-          const message: Message = { action: "fillElement", selector };
-          browser.tabs.sendMessage(tabId, message);
-        }, [])}
-        size="xs"
-        variant="subtle"
-      >
-        <LuPencilLine />
-      </IconButton>
-    </HStack>
+    <IconButton
+      aria-label="Focus element"
+      title="Focus element"
+      onClick={React.useCallback(async () => {
+        const tabId = await getCurrentTab();
+        if (!tabId) {
+          console.warn("couldn't get current tab");
+          return;
+        }
+        window.close();
+        const message: Message = { action: "focusElement", selector };
+        browser.tabs.sendMessage(tabId, message);
+      }, [])}
+      size="xs"
+      variant="subtle"
+    >
+      <LuFocus />
+    </IconButton>
+  );
+}
+
+function FillSelectorButton({ selector }: { selector: string }) {
+  return (
+    <IconButton
+      aria-label="Fill element"
+      title="Fill element"
+      onClick={React.useCallback(async () => {
+        const tabId = await getCurrentTab();
+        if (!tabId) {
+          console.warn("couldn't get current tab");
+          return;
+        }
+        window.close();
+        const message: Message = { action: "fillElement", selector };
+        browser.tabs.sendMessage(tabId, message);
+      }, [])}
+      size="xs"
+      variant="subtle"
+    >
+      <LuPencilLine />
+    </IconButton>
   );
 }
 
@@ -160,7 +162,10 @@ function PageDetails() {
             <List.Root css={styles.root}>
               {data.restoredSoFar.map((selector) => (
                 <List.Item key={selector} css={styles.item}>
-                  <SelectorDetail selector={selector} />
+                  <HStack>
+                    <Code>{selector}</Code>{" "}
+                    <FocusSelectorButton selector={selector} />
+                  </HStack>
                 </List.Item>
               ))}
             </List.Root>
@@ -179,7 +184,11 @@ function PageDetails() {
               <List.Root css={styles.root}>
                 {data.savedForPage.map((selector) => (
                   <List.Item key={selector} css={styles.item}>
-                    <SelectorDetail selector={selector} />
+                    <HStack>
+                      <Code>{selector}</Code>{" "}
+                      <FocusSelectorButton selector={selector} />
+                      <FillSelectorButton selector={selector} />
+                    </HStack>
                   </List.Item>
                 ))}
               </List.Root>
@@ -193,7 +202,7 @@ function PageDetails() {
   }
 
   return (
-    <VStack align="start">
+    <VStack align="start" width="100%">
       <Heading as="h2" size="lg">
         Current tab
       </Heading>
