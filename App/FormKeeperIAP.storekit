@@ -15,7 +15,7 @@
   ],
   "products" : [
     {
-      "displayPrice" : "39.99",
+      "displayPrice" : "29.99",
       "familyShareable" : true,
       "internalID" : "D997744A",
       "localizations" : [
@@ -97,7 +97,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "12.99",
+          "displayPrice" : "9.99",
           "familyShareable" : true,
           "groupNumber" : 1,
           "internalID" : "2FF272A1",

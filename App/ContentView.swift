@@ -66,6 +66,26 @@ extension View {
 }
 
 struct ContentView: View {
+    @Binding var showStore: Bool
+
+    var body: some View {
+        if #available(macOS 15.0, *) {
+            TabView {
+                Tab("Home", systemImage: "house") {
+                    ContentView2(showStore: $showStore)
+                }
+                Tab("Help", systemImage: "questionmark.circle") {
+                    HelpView()
+                }
+            }
+        } else {
+            Text("TODO")
+            // Fallback on earlier versions
+        }
+    }
+}
+
+struct ContentView2: View {
     #if os(macOS)
     @State private var extensionState: SFSafariExtensionState? = nil
     #endif

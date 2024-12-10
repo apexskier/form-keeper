@@ -9,7 +9,7 @@ struct StoreSheet: View {
         if #available(macOS 15.0, iOS 17.0, *) {
             SubscriptionStoreView(groupID: subscriptionGroupID)
                 .storeButton(.visible, for: .restorePurchases, .redeemCode)
-        } else if #available(macOS 14.0, iOS 17.0, *) {
+        } else {
             VStack {
                 HStack {
                     Button {
@@ -28,8 +28,6 @@ struct StoreSheet: View {
                 .storeButton(.visible, for: .restorePurchases)
                 .storeButton(.hidden, for: .cancellation)
             }
-        } else {
-            // Fallback on earlier versions
         }
     }
 }
