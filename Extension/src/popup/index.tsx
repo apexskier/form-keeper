@@ -27,8 +27,16 @@ root.render(
   </Provider>
 );
 
-function ActivatedText({ activated }: { activated: null | boolean }) {
-  if (activated === null) {
+const loading = Symbol("loading");
+type loading = typeof loading;
+const failed = Symbol("failed");
+type failed = typeof failed;
+
+const activatedContext = React.createContext<loading | boolean>(loading);
+
+function ActivatedText() {
+  const activated = React.useContext(activatedContext);
+  if (activated === loading) {
     return <Spinner />;
   }
   return <>{activated ? "active!" : "inactive!"}</>;
@@ -46,11 +54,6 @@ async function getCurrentTab() {
 
   return currentTabs[0]?.id ?? null;
 }
-
-const loading = Symbol("loading");
-type loading = typeof loading;
-const failed = Symbol("failed");
-type failed = typeof failed;
 
 function useRerunEffect(): [unknown, () => void] {
   const [reload, setReload] = React.useState({});
@@ -80,7 +83,8 @@ function FocusSelectorButton({ selector }: { selector: string }) {
   );
 }
 
-function FillSelectorButton({ selector }: { selector: string }) {
+function RestoreSelectorButton({ selector }: { selector: string }) {
+  const activated = React.useContext(activatedContext);
   return (
     <IconButton
       aria-label="Fill element"
@@ -94,7 +98,7 @@ function FillSelectorButton({ selector }: { selector: string }) {
         window.close();
         const message: Message = { action: "fillElement", selector };
         browser.tabs.sendMessage(tabId, message);
-      }, [])}
+      }, [activated])}
       size="xs"
       variant="subtle"
     >
@@ -187,7 +191,7 @@ function PageDetails() {
                     <HStack>
                       <Code>{selector}</Code>{" "}
                       <FocusSelectorButton selector={selector} />
-                      <FillSelectorButton selector={selector} />
+                      <RestoreSelectorButton selector={selector} />
                     </HStack>
                   </List.Item>
                 ))}
@@ -230,7 +234,7 @@ function PageDetails() {
   );
 }
 
-function Main() {
+function useActivated(): [boolean | loading, () => void] {
   const checkActive = React.useCallback(() => {
     browser.runtime.onMessage.addListener((message: Message) => {
       if (message.action === "subscriptionActive") {
@@ -239,7 +243,7 @@ function Main() {
     });
   }, []);
 
-  const [activated, setActivated] = React.useState<boolean | null>(null);
+  const [activated, setActivated] = React.useState<boolean | loading  >(loading);
   React.useEffect(() => {
     checkActive();
   }, []);
@@ -255,7 +259,7 @@ function Main() {
       });
   }, []);
 
-  const handleActivateClick = React.useCallback(async () => {
+  const onActivate = React.useCallback(async () => {
     const response = (await browser.runtime.sendMessage({
       action: "activate",
     })) as
@@ -285,17 +289,26 @@ function Main() {
     }
   }, []);
 
+
+  return [activated, onActivate]
+}
+
+function Main() {
+  const [activated, onActivate] = useActivated();
+
   return (
-    <VStack separator={<StackSeparator />} width="100%">
-      <VStack>
-        <Text>
-          FormKeeper is <ActivatedText activated={activated} />
-        </Text>
-        {activated === false && (
-          <Button onClick={handleActivateClick}>Activate</Button>
-        )}
+    <activatedContext.Provider value={activated}>
+      <VStack separator={<StackSeparator />} width="100%">
+        <VStack>
+          <Text>
+            FormKeeper is <ActivatedText />
+          </Text>
+          {activated === false && (
+            <Button onClick={onActivate}>Activate</Button>
+          )}
+        </VStack>
+        <PageDetails />
       </VStack>
-      <PageDetails />
-    </VStack>
+    </activatedContext.Provider>
   );
 }

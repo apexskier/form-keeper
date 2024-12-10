@@ -146,9 +146,6 @@ function restoreData(
   value: string,
   overwrite: boolean = false
 ) {
-  if (!subscriptionActive) {
-    return;
-  }
   if (isOptionElement(node)) {
     const from = node.selected;
     const to = value === "selected";
@@ -336,13 +333,15 @@ let mutationObserver = new MutationObserver((mutations) => {
         (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
           | undefined
           | Record<string, string>) || {};
-      added.forEach((node) => {
-        let elementSelector = getElementSelector(node);
-        if (!elementSelector) {
-          return;
-        }
-        restoreData(node, data[elementSelector]);
-      });
+      if (subscriptionActive) {
+        added.forEach((node) => {
+          let elementSelector = getElementSelector(node);
+          if (!elementSelector) {
+            return;
+          }
+          restoreData(node, data[elementSelector]);
+        });
+      }
       removed.forEach((node) => {
         // persistData(node, data);
       });
@@ -371,6 +370,9 @@ window.addEventListener("pagehide", () => {
 });
 
 function restoreAll() {
+  if (!subscriptionActive) {
+    return;
+  }
   const savedData = localStorage.getItem(makeKey());
   if (savedData) {
     Object.entries(
@@ -436,6 +438,10 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "fillElement": {
+        if (!subscriptionActive) {
+          alert("Please activate FormKeeper to use this feature");
+          return;
+        }
         const element = document.querySelector(message.selector) as
           | HTMLTextAreaElement
           | HTMLInputElement
