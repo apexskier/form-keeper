@@ -1,5 +1,3 @@
-## Help
-
 Welcome to FormKeeper! This guide provides answers to common questions and tips to help you get the most out of the extension.
 
 ## What is FormKeeper?

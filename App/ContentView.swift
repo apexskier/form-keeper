@@ -28,14 +28,36 @@ extension View {
 struct ContentView: View {
     @Binding var showStore: Bool
 
+    private var more: some View {
+        NavigationStack {
+            List {
+                NavigationLink {
+                    HelpView()
+                        .navigationTitle("Help")
+                } label: {
+                    Label("Help", systemImage: "questionmark.circle")
+                }
+
+                NavigationLink {
+                    PrivacyPolicyView()
+                        .navigationTitle("Privacy Policy")
+                } label: {
+                    Label("Privacy Policy", systemImage: "lock")
+                }
+            }
+            .navigationTitle(Text("More"))
+        }
+        .navigationBarTitleDisplayMode(.large)
+    }
+
     var body: some View {
         if #available(macOS 15.0, iOS 18.0, *) {
             TabView {
                 Tab("Home", systemImage: "house") {
                     HomeView(showStore: $showStore)
                 }
-                Tab("Help", systemImage: "questionmark.circle") {
-                    HelpView()
+                Tab("More", systemImage: "ellipsis.circle") {
+                    more
                 }
             }
         } else {
@@ -44,9 +66,9 @@ struct ContentView: View {
                     .tabItem {
                         Label("Home", systemImage: "house")
                     }
-                HelpView()
+                more
                     .tabItem {
-                        Label("Help", systemImage: "questionmark.circle")
+                        Label("More", systemImage: "ellipsis.circle")
                     }
             }
         }

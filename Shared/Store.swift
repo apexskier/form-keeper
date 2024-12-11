@@ -12,7 +12,7 @@ func isSubscriptionActive() async -> Bool {
     for product in products {
         let entitlement = await product.currentEntitlement
         switch entitlement {
-        case .verified(let transaction):
+        case .verified:
             return true
         case .unverified(_, let error):
             print("Subscription is not active: \(error.localizedDescription)")

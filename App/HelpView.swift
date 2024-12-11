@@ -1,9 +1,11 @@
 import SwiftUI
 import MarkdownUI
 
-struct HelpView: View {
+struct MarkdownFileView: View {
+    var fileName: String
+
     private var text: String? {
-        guard let filepath = Bundle.main.url(forResource: "Help", withExtension: "md"),
+        guard let filepath = Bundle.main.url(forResource: fileName, withExtension: "md"),
               let contents = try? String(contentsOf: filepath) else {
             return nil
         }
@@ -12,13 +14,30 @@ struct HelpView: View {
     }
 
     var body: some View {
+        if let text {
+            Markdown(text)
+        } else {
+            Text("Failed to load content")
+        }
+    }
+}
+
+struct HelpView: View {
+    var body: some View {
         ScrollView {
             Group {
-                if let text {
-                    Markdown(text)
-                } else {
-                    Text("Failed to load Help content")
-                }
+                MarkdownFileView(fileName: "Help")
+            }
+            .padding()
+        }
+    }
+}
+
+struct PrivacyPolicyView: View {
+    var body: some View {
+        ScrollView {
+            Group {
+                MarkdownFileView(fileName: "PrivacyPolicy")
             }
             .padding()
         }
@@ -26,5 +45,5 @@ struct HelpView: View {
 }
 
 #Preview {
-    ContentView(showStore: .constant(false))
+    HelpView()
 }

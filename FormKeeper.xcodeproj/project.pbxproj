@@ -68,6 +68,7 @@
 				HelpView.swift,
 				HomeView.swift,
 				InstructionsView.swift,
+				PrivacyPolicy.md,
 				StoreView.swift,
 			);
 			target = C5DAA1782CFE99B5002AB3F1 /* FormKeeper */;
