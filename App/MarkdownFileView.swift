@@ -22,28 +22,6 @@ struct MarkdownFileView: View {
     }
 }
 
-struct HelpView: View {
-    var body: some View {
-        ScrollView {
-            Group {
-                MarkdownFileView(fileName: "Help")
-            }
-            .padding()
-        }
-    }
-}
-
-struct PrivacyPolicyView: View {
-    var body: some View {
-        ScrollView {
-            Group {
-                MarkdownFileView(fileName: "PrivacyPolicy")
-            }
-            .padding()
-        }
-    }
-}
-
 #Preview {
-    HelpView()
+    MarkdownFileView(fileName: "Help")
 }
