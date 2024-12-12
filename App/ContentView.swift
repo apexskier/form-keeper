@@ -47,7 +47,9 @@ struct ContentView: View {
             }
             .navigationTitle(Text("More"))
         }
+#if os(iOS)
         .navigationBarTitleDisplayMode(.large)
+#endif
     }
 
     var body: some View {

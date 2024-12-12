@@ -126,7 +126,7 @@ struct StoreView: View {
         .onAppear {
             Task(priority: .background) {
                 for await verificationResult in Transaction.updates {
-                    guard case .verified(let transaction) = verificationResult else {
+                    guard case .verified = verificationResult else {
                         // Ignore unverified transactions.
                         return
                     }
