@@ -4,6 +4,7 @@ import SwiftUI
 
 struct StoreSheet: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.purchase) private var purchase: PurchaseAction
 
     @State private var freeTrialProduct: Product? = nil
 
@@ -27,7 +28,7 @@ struct StoreSheet: View {
                 {
                     Button {
                         Task {
-                            let result = try? await freeTrialProduct.purchase()
+                            let result = try? await purchase(freeTrialProduct)
                             switch result {
                             case .success:
                                 dismiss()
@@ -43,15 +44,19 @@ struct StoreSheet: View {
 
                 if #available(macOS 15.0, *) {
                     StoreKit.StoreView(ids: productIDs)
+                        #if !os(visionOS)
                     .productViewStyle(.compact)
-                    .storeButton(.visible, for: .restorePurchases)
-                    .storeButton(.visible, for: .redeemCode)
-                    .storeButton(.hidden, for: .cancellation)
+                        #endif
+                        .storeButton(.visible, for: .restorePurchases)
+                        .storeButton(.visible, for: .redeemCode)
+                        .storeButton(.hidden, for: .cancellation)
                 } else {
                     StoreKit.StoreView(ids: productIDs)
+                        #if !os(visionOS)
                     .productViewStyle(.compact)
-                    .storeButton(.visible, for: .restorePurchases)
-                    .storeButton(.hidden, for: .cancellation)
+                        #endif
+                        .storeButton(.visible, for: .restorePurchases)
+                        .storeButton(.hidden, for: .cancellation)
                 }
             }
         }

@@ -6,7 +6,7 @@ struct MarkdownFileView: View {
 
     private var text: String? {
         guard let filepath = Bundle.main.url(forResource: fileName, withExtension: "md"),
-              let contents = try? String(contentsOf: filepath) else {
+              let contents = try? String(contentsOf: filepath, encoding: .utf8) else {
             return nil
         }
 

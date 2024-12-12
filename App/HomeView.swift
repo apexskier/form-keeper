@@ -100,7 +100,7 @@ struct HomeView: View {
                         Text("Open Safari Extensions Preferences")
                     }
                 }
-#else
+#elseif os(iOS)
                 turnOnText
 
                 VStack(alignment: .leading, spacing: 20) {
