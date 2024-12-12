@@ -122,6 +122,10 @@ struct StoreView: View {
         }
         .task {
             paidActive = await isSubscriptionActive()
+
+            if paidActive == false {
+                showStore = true
+            }
         }
         .onAppear {
             Task(priority: .background) {
