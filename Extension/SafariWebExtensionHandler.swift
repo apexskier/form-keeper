@@ -30,7 +30,6 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                     print("failed")
                 }
             case "activate":
-                print("")
                 if await isSubscriptionActive() {
                     if !(await context.completeRequest(returningMessage: [
                         "action": "subscriptionActive",
