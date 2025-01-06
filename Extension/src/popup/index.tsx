@@ -81,7 +81,7 @@ function FocusSelectorButton({ selector }: { selector: string }) {
         browser.tabs.sendMessage(tabId, message);
       }, [])}
       size="xs"
-      variant="subtle"
+      variant="outline"
     >
       <LuFocus />
     </IconButton>
@@ -105,7 +105,7 @@ function RestoreSelectorButton({ selector }: { selector: string }) {
         browser.tabs.sendMessage(tabId, message);
       }, [activated])}
       size="xs"
-      variant="subtle"
+      variant="outline"
     >
       <LuPencilLine />
     </IconButton>
@@ -128,7 +128,7 @@ function CopySelectorContentButton({ selector }: { selector: string }) {
         browser.tabs.sendMessage(tabId, message);
       }, [activated])}
       size="xs"
-      variant="subtle"
+      variant="outline"
     >
       <LuClipboardCopy />
     </IconButton>
@@ -142,7 +142,11 @@ function ForgetSelectorContentButton({
   selector: string;
   onResponse: (data: {
     restoredSoFar: Array<string>;
-    savedForPage: Array<string>;
+    savedForPage: Array<{
+      selector: string;
+      content: string;
+      isVisible: boolean;
+    }>;
   }) => void;
 }) {
   const activated = React.useContext(activatedContext);
@@ -160,12 +164,16 @@ function ForgetSelectorContentButton({
         onResponse(
           (await browser.tabs.sendMessage(tabId, message)) as {
             restoredSoFar: Array<string>;
-            savedForPage: Array<string>;
+            savedForPage: Array<{
+              selector: string;
+              content: string;
+              isVisible: boolean;
+            }>;
           }
         );
       }, [activated])}
       size="xs"
-      variant="subtle"
+      variant="outline"
     >
       <LuDelete />
     </IconButton>
@@ -179,7 +187,11 @@ function PageDetails() {
     | failed
     | {
         restoredSoFar: Array<string>;
-        savedForPage: Array<string>;
+        savedForPage: Array<{
+          selector: string;
+          content: string;
+          isVisible: boolean;
+        }>;
       }
   >(loading);
   React.useEffect(() => {
@@ -197,7 +209,14 @@ function PageDetails() {
         action: "getSaved",
       })) as
         | undefined
-        | { restoredSoFar: Array<string>; savedForPage: Array<string> };
+        | {
+            restoredSoFar: Array<string>;
+            savedForPage: Array<{
+              selector: string;
+              content: string;
+              isVisible: boolean;
+            }>;
+          };
       if (!response) {
         setData(failed);
         return;
@@ -206,7 +225,7 @@ function PageDetails() {
     })();
   }, [reloadDep]);
 
-  const recipe = useSlotRecipe<"root" | "item" | "indicator">({
+  const recipe = useSlotRecipe({
     recipe: listSlotRecipe,
   });
   const styles = recipe();
@@ -251,17 +270,25 @@ function PageDetails() {
             </summary>
             {data.savedForPage.length ? (
               <List.Root css={styles.root}>
-                {data.savedForPage.map((selector) => (
+                {data.savedForPage.map(({ selector, content, isVisible }) => (
                   <List.Item key={selector} css={styles.item}>
                     <HStack>
                       <Code>{selector}</Code>{" "}
-                      <FocusSelectorButton selector={selector} />
-                      <RestoreSelectorButton selector={selector} />
-                      <CopySelectorContentButton selector={selector} />
-                      <ForgetSelectorContentButton
-                        selector={selector}
-                        onResponse={setData}
-                      />
+                      <Group attached>
+                        {isVisible ? (
+                          <>
+                            <FocusSelectorButton selector={selector} />
+                            <RestoreSelectorButton selector={selector} />
+                          </>
+                        ) : null}
+                        {content ? (
+                          <CopySelectorContentButton selector={selector} />
+                        ) : null}
+                        <ForgetSelectorContentButton
+                          selector={selector}
+                          onResponse={setData}
+                        />
+                      </Group>
                     </HStack>
                   </List.Item>
                 ))}

@@ -398,7 +398,25 @@ function restoreAll() {
 setupEventHandlers(document.body);
 
 browser.runtime.onMessage.addListener(
-  (message: Message, sender, sendResponse) => {
+  async (message: Message, sender, sendResponse) => {
+    function respondWithPayload(data: Record<string, string>) {
+      sendResponse({
+        restoredSoFar: Array.from(new Set(restoredSoFar)),
+        savedForPage: Object.keys(data).map((selector) => ({
+          selector,
+          content: data[selector],
+          isVisible: !!document.querySelector(selector),
+        })),
+      } as {
+        restoredSoFar: Array<string>;
+        savedForPage: Array<{
+          selector: string;
+          content: string;
+          isVisible: boolean;
+        }>;
+      });
+    }
+
     switch (message.action) {
       case "clear": {
         if (window.confirm("Clear saved form data for this page and reload?")) {
@@ -415,10 +433,8 @@ browser.runtime.onMessage.addListener(
             | undefined
             | Record<string, string>) || {};
         delete data[message.selector];
-        sendResponse({
-          restoredSoFar: Array.from(new Set(restoredSoFar)),
-          savedForPage: Object.keys(data),
-        });
+        localStorage.setItem(pageKey, JSON.stringify(data));
+        respondWithPayload(data);
         break;
       }
       case "openApp": {
@@ -431,10 +447,7 @@ browser.runtime.onMessage.addListener(
           (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
             | undefined
             | Record<string, string>) || {};
-        sendResponse({
-          restoredSoFar: Array.from(new Set(restoredSoFar)),
-          savedForPage: Object.keys(data),
-        });
+        respondWithPayload(data);
         break;
       }
       case "focusElement": {
@@ -451,7 +464,7 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "fillElement": {
-        if (!subscriptionActive) {
+        if (!await checkSubscriptionStatus()) {
           alert("Please activate FormKeeper to use this feature");
           return;
         }
@@ -478,6 +491,10 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "copyElement": {
+        if (!await checkSubscriptionStatus()) {
+          alert("Please activate FormKeeper to use this feature");
+          return;
+        }
         const pageKey = makeKey();
         const data =
           (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
@@ -501,12 +518,17 @@ browser.runtime.onMessage.addListener(
   }
 );
 
-browser.runtime
-  .sendMessage({ action: "checkActiveSubscription" })
-  .then((response: { echo: unknown; subscriptionActive: boolean }) => {
-    if (!response) {
-      return;
-    }
-    subscriptionActive = response.subscriptionActive;
-    restoreAll();
-  });
+async function checkSubscriptionStatus(): Promise<boolean | null> {
+  const response = (await browser.runtime.sendMessage({
+    action: "checkActiveSubscription",
+  })) as { echo: unknown; subscriptionActive: boolean };
+  if (!response) {
+    return null;
+  }
+  subscriptionActive = response.subscriptionActive;
+  return subscriptionActive;
+}
+
+checkSubscriptionStatus().then(() => {
+  restoreAll();
+});
