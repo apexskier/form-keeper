@@ -12,6 +12,22 @@ import os.log
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
     private var activatePoller: Task<Void, Never>? = nil
 
+    private enum DataType: String, RawRepresentable {
+        case text = "text"
+        case html = "html"
+
+        #if os(macOS)
+        var pasteboardType: NSPasteboard.PasteboardType {
+            switch self {
+            case .text:
+                return .string
+            case .html:
+                return .html
+            }
+        }
+        #endif
+    }
+
     func beginRequest(with context: NSExtensionContext) {
         let request = context.inputItems.first as? NSExtensionItem
 
@@ -29,6 +45,17 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 ])) {
                     print("failed")
                 }
+            case "copyToClipboard":
+                guard let data = message["data"] as? String, let rawType = message["type"] as? String, let type = DataType(rawValue: rawType) else {
+                    return
+                }
+                #if os(macOS)
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(data, forType: type.pasteboardType)
+                #else
+                let pasteboard = UIPasteboard.general
+                pasteboard.string = data
+                #endif
             case "activate":
                 if await isSubscriptionActive() {
                     if !(await context.completeRequest(returningMessage: [
@@ -38,7 +65,6 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                         print("failed")
                     }
                 } else {
-                    print("opening link")
                     guard let url = URL(string: "form-keeper://activate") else {
                         return
                     }

@@ -408,6 +408,19 @@ browser.runtime.onMessage.addListener(
         }
         break;
       }
+      case "forgetElement": {
+        const pageKey = makeKey();
+        const data =
+          (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+            | undefined
+            | Record<string, string>) || {};
+        delete data[message.selector];
+        sendResponse({
+          restoredSoFar: Array.from(new Set(restoredSoFar)),
+          savedForPage: Object.keys(data),
+        });
+        break;
+      }
       case "openApp": {
         document.location = "form-keeper://activate";
         break;
@@ -462,6 +475,19 @@ browser.runtime.onMessage.addListener(
             }
           }
         }
+        break;
+      }
+      case "copyElement": {
+        const pageKey = makeKey();
+        const data =
+          (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+            | undefined
+            | Record<string, string>) || {};
+        browser.runtime.sendMessage({
+          action: "copyToClipboard",
+          type: "text",
+          data: data[message.selector],
+        });
         break;
       }
       case "subscriptionActive": {

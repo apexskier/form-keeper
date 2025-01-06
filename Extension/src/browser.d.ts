@@ -1,10 +1,21 @@
 type Message =
-  | { action: "clear" }
-  | { action: "checkActiveSubscription" }
-  | { action: "activate" }
-  | { action: "openApp" }
-  | { action: "getSaved" }
-  | { action: "focusElement" | "fillElement"; selector: string }
+  | {
+      action:
+        | "clear"
+        | "checkActiveSubscription"
+        | "activate"
+        | "openApp"
+        | "getSaved";
+    }
+  | {
+      action: "copyToClipboard";
+      type: "text" | "html";
+      data: string;
+    }
+  | {
+      action: "focusElement" | "copyElement" | "fillElement" | "forgetElement";
+      selector: string;
+    }
   | {
       action: "subscriptionActive";
       subscriptionActive: boolean;

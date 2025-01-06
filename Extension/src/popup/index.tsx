@@ -16,7 +16,12 @@ import {
 import { Provider } from "./components/ui/provider";
 import { Button } from "./components/ui/button";
 import { listSlotRecipe } from "./theme";
-import { LuFocus, LuPencilLine, LuSearchCheck } from "react-icons/lu";
+import {
+  LuFocus,
+  LuPencilLine,
+  LuClipboardCopy,
+  LuDelete,
+} from "react-icons/lu";
 
 // Render your React component instead
 const root = createRoot(document.getElementById("root")!);
@@ -107,6 +112,66 @@ function RestoreSelectorButton({ selector }: { selector: string }) {
   );
 }
 
+function CopySelectorContentButton({ selector }: { selector: string }) {
+  const activated = React.useContext(activatedContext);
+  return (
+    <IconButton
+      aria-label="Copy contents"
+      title="Copy contents"
+      onClick={React.useCallback(async () => {
+        const tabId = await getCurrentTab();
+        if (!tabId) {
+          console.warn("couldn't get current tab");
+          return;
+        }
+        const message: Message = { action: "copyElement", selector };
+        browser.tabs.sendMessage(tabId, message);
+      }, [activated])}
+      size="xs"
+      variant="subtle"
+    >
+      <LuClipboardCopy />
+    </IconButton>
+  );
+}
+
+function ForgetSelectorContentButton({
+  selector,
+  onResponse,
+}: {
+  selector: string;
+  onResponse: (data: {
+    restoredSoFar: Array<string>;
+    savedForPage: Array<string>;
+  }) => void;
+}) {
+  const activated = React.useContext(activatedContext);
+  return (
+    <IconButton
+      aria-label="Forget"
+      title="Forget"
+      onClick={React.useCallback(async () => {
+        const tabId = await getCurrentTab();
+        if (!tabId) {
+          console.warn("couldn't get current tab");
+          return;
+        }
+        const message: Message = { action: "forgetElement", selector };
+        onResponse(
+          (await browser.tabs.sendMessage(tabId, message)) as {
+            restoredSoFar: Array<string>;
+            savedForPage: Array<string>;
+          }
+        );
+      }, [activated])}
+      size="xs"
+      variant="subtle"
+    >
+      <LuDelete />
+    </IconButton>
+  );
+}
+
 function PageDetails() {
   const [reloadDep, reload] = useRerunEffect();
   const [data, setData] = React.useState<
@@ -192,6 +257,11 @@ function PageDetails() {
                       <Code>{selector}</Code>{" "}
                       <FocusSelectorButton selector={selector} />
                       <RestoreSelectorButton selector={selector} />
+                      <CopySelectorContentButton selector={selector} />
+                      <ForgetSelectorContentButton
+                        selector={selector}
+                        onResponse={setData}
+                      />
                     </HStack>
                   </List.Item>
                 ))}
@@ -243,7 +313,7 @@ function useActivated(): [boolean | loading, () => void] {
     });
   }, []);
 
-  const [activated, setActivated] = React.useState<boolean | loading  >(loading);
+  const [activated, setActivated] = React.useState<boolean | loading>(loading);
   React.useEffect(() => {
     checkActive();
   }, []);
@@ -289,8 +359,7 @@ function useActivated(): [boolean | loading, () => void] {
     }
   }, []);
 
-
-  return [activated, onActivate]
+  return [activated, onActivate];
 }
 
 function Main() {
