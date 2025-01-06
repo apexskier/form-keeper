@@ -12,7 +12,7 @@ struct MyMain {
 }
 
 struct SharedView: View {
-    @State private var showStore = false
+    @State private var showStore: Bool? = false
 
     var body: some View {
         ContentView(showStore: $showStore)

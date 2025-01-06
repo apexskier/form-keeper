@@ -45,7 +45,7 @@ struct HomeView: View {
     }
     @State private var instructionShown: Instruction = .safari
 
-    @Binding var showStore: Bool
+    @Binding var showStore: Bool?
 
     var turnOnText: some View {
         Text(

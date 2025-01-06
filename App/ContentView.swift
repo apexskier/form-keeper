@@ -33,7 +33,7 @@ extension View {
 }
 
 struct ContentView: View {
-    @Binding var showStore: Bool
+    @Binding var showStore: Bool?
 
     var body: some View {
         if #available(macOS 15.0, iOS 18.0, *) {

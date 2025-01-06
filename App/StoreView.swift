@@ -124,7 +124,7 @@ struct ProductView: View {
                         .multilineTextAlignment(.center)
                         Spacer(minLength: 0)
                     }
-                    
+
                     Text(product.displayName)
                     if !product.description.isEmpty {
                         Text(product.description)
@@ -132,9 +132,9 @@ struct ProductView: View {
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
-                    
+
                     Spacer(minLength: 0)
-                    
+
                     VStack {
                         HStack {
                             Button {
@@ -212,11 +212,11 @@ struct StoreSheet: View {
 
     @State private var showRedeem = false
     @State private var monthlyProduct: Product? = nil
-    @State private var monthlyProductEntitlement: StoreKit.Transaction? = nil
+    var monthlyProductEntitlement: StoreKit.Transaction?
     @State private var annualProduct: Product? = nil
-    @State private var annualProductEntitlement: StoreKit.Transaction? = nil
+    var annualProductEntitlement: StoreKit.Transaction?
     @State private var lifetimeProduct: Product? = nil
-    @State private var lifetimeProductEntitlement: StoreKit.Transaction? = nil
+    var lifetimeProductEntitlement: StoreKit.Transaction?
 
     @State private var renewalInfo: StoreKit.Product.SubscriptionInfo.RenewalInfo? = nil
 
@@ -384,36 +384,18 @@ struct StoreSheet: View {
         .storeProductTask(for: monthlyProductID, action: monthlyProductAction)
         .storeProductTask(for: annualProductID, action: annualProductAction)
         .storeProductTask(for: lifetimeProductID, action: lifetimeProductAction)
-        .currentEntitlementTask(for: monthlyProductID, action: monthlyProductEntitlementAction)
-        .currentEntitlementTask(for: annualProductID, action: annualProductEntitlementAction)
-        .currentEntitlementTask(for: lifetimeProductID, action: lifetimeProductEntitlementAction)
     }
 
     private func monthlyProductAction(task: Product.TaskState) async {
         monthlyProduct = task.product
     }
-    private func monthlyProductEntitlementAction(
-        state: EntitlementTaskState<VerificationResult<StoreKit.Transaction>?>
-    ) async {
-        monthlyProductEntitlement = try? state.value??.payloadValue
-    }
 
     private func annualProductAction(task: Product.TaskState) async {
         annualProduct = task.product
     }
-    private func annualProductEntitlementAction(
-        state: EntitlementTaskState<VerificationResult<StoreKit.Transaction>?>
-    ) async {
-        annualProductEntitlement = try? state.value??.payloadValue
-    }
 
     private func lifetimeProductAction(task: Product.TaskState) async {
         lifetimeProduct = task.product
-    }
-    private func lifetimeProductEntitlementAction(
-        state: EntitlementTaskState<VerificationResult<StoreKit.Transaction>?>
-    ) async {
-        lifetimeProductEntitlement = try? state.value??.payloadValue
     }
 }
 
@@ -422,9 +404,23 @@ struct StoreSheet: View {
 }
 
 struct StoreView: View {
-    @Binding var showStore: Bool
+    @Binding var showStore: Bool?
 
-    @State private var paidActive: Bool? = nil
+    private var paidActive: Bool? {
+        monthlyProductEntitlement != nil || annualProductEntitlement != nil
+            || lifetimeProductEntitlement != nil
+    }
+
+    @State private var monthlyProductEntitlement: StoreKit.Transaction? = nil
+    @State private var annualProductEntitlement: StoreKit.Transaction? = nil
+    @State private var lifetimeProductEntitlement: StoreKit.Transaction? = nil
+
+    @State private var monthlyProductEntitlementState:
+        EntitlementTaskState<VerificationResult<StoreKit.Transaction>?> = .loading
+    @State private var annualProductEntitlementState:
+        EntitlementTaskState<VerificationResult<StoreKit.Transaction>?> = .loading
+    @State private var lifetimeProductEntitlementState:
+        EntitlementTaskState<VerificationResult<StoreKit.Transaction>?> = .loading
 
     var body: some View {
         VStack(spacing: 8) {
@@ -454,29 +450,75 @@ struct StoreView: View {
         .padding()
         .background(Material.thick)
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .sheet(isPresented: $showStore) {
-            if #available(macOS 15.0, iOS 18.0, *) {
-                StoreSheet()
-                    .presentationSizing(.fitted)
-            } else {
-                StoreSheet()
-            }
-        }
-        .task {
-            paidActive = await isSubscriptionActive()
-            if paidActive == false {
-                showStore = true
-            }
-        }
-        .onAppear {
-            Task {
-                for await verificationResult in Transaction.updates {
-                    paidActive = await isSubscriptionActive()
-
-                    try? await verificationResult.payloadValue.finish()
+        .sheet(
+            isPresented: .init(
+                get: {
+                    showStore ?? false
+                },
+                set: { newValue in
+                    showStore = newValue
                 }
+            )
+        ) {
+            if #available(macOS 15.0, iOS 18.0, *) {
+                StoreSheet(
+                    monthlyProductEntitlement: monthlyProductEntitlement,
+                    annualProductEntitlement: annualProductEntitlement,
+                    lifetimeProductEntitlement: lifetimeProductEntitlement
+                )
+                .presentationSizing(.fitted)
+            } else {
+                StoreSheet(
+                    monthlyProductEntitlement: monthlyProductEntitlement,
+                    annualProductEntitlement: annualProductEntitlement,
+                    lifetimeProductEntitlement: lifetimeProductEntitlement
+                )
             }
         }
+        .currentEntitlementTask(for: monthlyProductID, action: monthlyProductEntitlementAction)
+        .currentEntitlementTask(for: annualProductID, action: annualProductEntitlementAction)
+        .currentEntitlementTask(for: lifetimeProductID, action: lifetimeProductEntitlementAction)
+    }
+
+    private func checkStorePopup() async {
+        guard
+            case .success = annualProductEntitlementState,
+            case .success = monthlyProductEntitlementState,
+            case .success = lifetimeProductEntitlementState
+        else {
+            return
+        }
+
+        let paidActive =
+            annualProductEntitlement != nil || monthlyProductEntitlement != nil
+            || lifetimeProductEntitlement != nil
+        if showStore == nil && !paidActive {
+            showStore = true
+        }
+    }
+
+    private func monthlyProductEntitlementAction(
+        state: EntitlementTaskState<VerificationResult<StoreKit.Transaction>?>
+    ) async {
+        monthlyProductEntitlementState = state
+        monthlyProductEntitlement = try? state.value??.payloadValue
+        await checkStorePopup()
+    }
+
+    private func annualProductEntitlementAction(
+        state: EntitlementTaskState<VerificationResult<StoreKit.Transaction>?>
+    ) async {
+        annualProductEntitlementState = state
+        annualProductEntitlement = try? state.value??.payloadValue
+        await checkStorePopup()
+    }
+
+    private func lifetimeProductEntitlementAction(
+        state: EntitlementTaskState<VerificationResult<StoreKit.Transaction>?>
+    ) async {
+        lifetimeProductEntitlementState = state
+        lifetimeProductEntitlement = try? state.value??.payloadValue
+        await checkStorePopup()
     }
 }
 
