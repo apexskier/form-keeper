@@ -22,19 +22,11 @@ type Message =
     };
 
 interface MainPayload {
-  watching: Array<{
+  elements: Array<{
     selector: string;
-    visible: boolean;
-  }>;
-  restoredSoFar: Array<{
-    selector: string;
-    visible: boolean;
-  }>;
-  savedForPage: Array<{
-    selector: string;
-    present: boolean;
-    visible: boolean;
-    content: string;
+    presense: "visible" | "present" | null
+    savedContent: string;
+    restored: boolean;
   }>;
 }
 

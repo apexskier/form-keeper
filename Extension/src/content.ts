@@ -1,5 +1,3 @@
-import { selectAnatomy } from "@chakra-ui/react/anatomy";
-
 let subscriptionActive: null | boolean = null;
 let isClearing = false;
 
@@ -405,24 +403,36 @@ setupEventHandlers(document.body);
 browser.runtime.onMessage.addListener(
   async (message: Message, sender, sendResponse) => {
     function respondWithPayload(data: Record<string, string>) {
+      let presentElements = Object.fromEntries(
+        findFormElements(document.body)
+          .map((element) => [getElementSelector(element), element])
+          .filter(
+            (
+              v
+            ): v is [
+              string,
+              HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
+            ] => !!v[0]
+          )
+      );
+      let selectors = new Set([
+        ...Object.keys(data),
+        ...Object.keys(presentElements),
+      ]);
+
       sendResponse({
-        watching: findFormElements(document.body)
-          .map((node) => ({
-            selector: getElementSelector(node),
-            visible: node.checkVisibility(),
-          }))
-          .filter(({ selector }) => !!selector),
-        restoredSoFar: Array.from(new Set(restoredSoFar)).map((selector) => ({
-          selector,
-          visible: document.querySelector(selector) ?? false,
-        })),
-        savedForPage: Object.keys(data).map((selector) => {
-          let node = document.querySelector(selector);
+        elements: Array.from(selectors).map((selector) => {
+          let element =
+            presentElements[selector] ?? document.querySelector(selector);
           return {
             selector,
-            content: data[selector],
-            present: node ?? false,
-            visible: node?.checkVisibility() ?? false,
+            presense: element
+              ? element.checkVisibility()
+                ? "visible"
+                : "present"
+              : null,
+            savedContent: data[selector],
+            restored: restoredSoFar.includes(selector),
           };
         }),
       } as MainPayload);

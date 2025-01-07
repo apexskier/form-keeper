@@ -1,10 +1,8 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import {
-  Badge,
   Code,
   Group,
-  Heading,
   IconButton,
   Spinner,
   StackSeparator,
@@ -19,13 +17,11 @@ import {
   LuPencilLine,
   LuClipboardCopy,
   LuDelete,
+  LuEye,
+  LuEyeClosed,
+  LuCircleOff,
 } from "react-icons/lu";
-import {
-  AccordionItem,
-  AccordionItemContent,
-  AccordionItemTrigger,
-  AccordionRoot,
-} from "../../../src/components/ui/accordion";
+import { ToggleTip } from "../../../src/components/ui/toggle-tip";
 
 // Render your React component instead
 const root = createRoot(document.getElementById("root")!);
@@ -69,11 +65,17 @@ function useRerunEffect(): [unknown, () => void] {
   return [reload, () => setReload({})];
 }
 
-function FocusSelectorButton({ selector }: { selector: string }) {
+function FocusSelectorButton({
+  selector,
+  disabled,
+}: {
+  selector: string;
+  disabled: boolean;
+}) {
   return (
     <IconButton
-      aria-label="Focus element"
-      title="Focus element"
+      aria-label="Focus field"
+      title="Focus field"
       onClick={React.useCallback(async () => {
         const tabId = await getCurrentTab();
         if (!tabId) {
@@ -86,18 +88,25 @@ function FocusSelectorButton({ selector }: { selector: string }) {
       }, [])}
       size="xs"
       variant="outline"
+      disabled={disabled}
     >
       <LuFocus />
     </IconButton>
   );
 }
 
-function RestoreSelectorButton({ selector }: { selector: string }) {
+function RestoreSelectorButton({
+  selector,
+  disabled,
+}: {
+  selector: string;
+  disabled: boolean;
+}) {
   const activated = React.useContext(activatedContext);
   return (
     <IconButton
-      aria-label="Fill element"
-      title="Fill element"
+      aria-label="Restore field"
+      title="Restore field"
       onClick={React.useCallback(async () => {
         const tabId = await getCurrentTab();
         if (!tabId) {
@@ -110,13 +119,20 @@ function RestoreSelectorButton({ selector }: { selector: string }) {
       }, [activated])}
       size="xs"
       variant="outline"
+      disabled={disabled}
     >
       <LuPencilLine />
     </IconButton>
   );
 }
 
-function CopySelectorContentButton({ selector }: { selector: string }) {
+function CopySelectorContentButton({
+  selector,
+  disabled,
+}: {
+  selector: string;
+  disabled: boolean;
+}) {
   const activated = React.useContext(activatedContext);
   return (
     <IconButton
@@ -133,6 +149,7 @@ function CopySelectorContentButton({ selector }: { selector: string }) {
       }, [activated])}
       size="xs"
       variant="outline"
+      disabled={disabled}
     >
       <LuClipboardCopy />
     </IconButton>
@@ -142,9 +159,11 @@ function CopySelectorContentButton({ selector }: { selector: string }) {
 function ForgetSelectorContentButton({
   selector,
   onResponse,
+  disabled,
 }: {
   selector: string;
   onResponse: (data: MainPayload) => void;
+  disabled: boolean;
 }) {
   const activated = React.useContext(activatedContext);
   return (
@@ -164,6 +183,7 @@ function ForgetSelectorContentButton({
       }, [activated])}
       size="xs"
       variant="outline"
+      disabled={disabled}
     >
       <LuDelete />
     </IconButton>
@@ -208,133 +228,93 @@ function PageDetails() {
       );
       break;
     default:
-      content = (
-        <AccordionRoot multiple>
-          <AccordionItem value="watched">
-            <AccordionItemTrigger>Watched <Badge size="xs">{data.watching.length}</Badge></AccordionItemTrigger>
-            <AccordionItemContent>
-              {data.watching.length ? (
-                <Table.Root size="sm">
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.ColumnHeader>Selector</Table.ColumnHeader>
-                      <Table.ColumnHeader textAlign="end">
-                        Actions
-                      </Table.ColumnHeader>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {data.watching.map(({ selector, visible }) => (
-                      <Table.Row key={selector}>
-                        <Table.Cell>
-                          <Code>{selector}</Code>
-                        </Table.Cell>
-                        <Table.Cell textAlign="end">
-                          {visible ? (
-                            <FocusSelectorButton selector={selector} />
-                          ) : null}
-                        </Table.Cell>
-                      </Table.Row>
-                    ))}
-                  </Table.Body>
-                </Table.Root>
-              ) : (
-                <Text>Nothing yet.</Text>
-              )}
-            </AccordionItemContent>
-          </AccordionItem>
-          <AccordionItem value="restored">
-            <AccordionItemTrigger>Restored <Badge size="xs">{data.restoredSoFar.length}</Badge></AccordionItemTrigger>
-            <AccordionItemContent>
-              {data.restoredSoFar.length ? (
-                <Table.Root size="sm">
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.ColumnHeader>Selector</Table.ColumnHeader>
-                      <Table.ColumnHeader textAlign="end">
-                        Actions
-                      </Table.ColumnHeader>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {data.restoredSoFar.map(({ selector, visible }) => (
-                      <Table.Row key={selector}>
-                        <Table.Cell>
-                          <Code>{selector}</Code>
-                        </Table.Cell>
-                        <Table.Cell textAlign="end">
-                          {visible ? (
-                            <FocusSelectorButton selector={selector} />
-                          ) : null}
-                        </Table.Cell>
-                      </Table.Row>
-                    ))}
-                  </Table.Body>
-                </Table.Root>
-              ) : (
-                <Text>Nothing yet.</Text>
-              )}
-            </AccordionItemContent>
-          </AccordionItem>
-          <AccordionItem value="saved">
-            <AccordionItemTrigger>Saved <Badge size="xs">{data.savedForPage.length}</Badge></AccordionItemTrigger>
-            <AccordionItemContent>
-              {data.savedForPage.length ? (
-                <Table.Root size="sm">
-                  <Table.Header>
-                    <Table.Row>
-                      <Table.ColumnHeader>Selector</Table.ColumnHeader>
-                      <Table.ColumnHeader textAlign="end">
-                        Actions
-                      </Table.ColumnHeader>
-                    </Table.Row>
-                  </Table.Header>
-                  <Table.Body>
-                    {data.savedForPage.map(
-                      ({ selector, content, present, visible }) => (
-                        <Table.Row key={selector}>
-                          <Table.Cell>
-                            <Code>{selector}</Code>
-                          </Table.Cell>
-                          <Table.Cell textAlign="end">
-                            <Group attached>
-                              {visible ? (
-                                <FocusSelectorButton selector={selector} />
-                              ) : null}
-                              {present ? (
-                                <RestoreSelectorButton selector={selector} />
-                              ) : null}
-                              {content ? (
-                                <CopySelectorContentButton
-                                  selector={selector}
-                                />
-                              ) : null}
-                              <ForgetSelectorContentButton
-                                selector={selector}
-                                onResponse={setData}
-                              />
-                            </Group>
-                          </Table.Cell>
-                        </Table.Row>
-                      )
+      content = data.elements.length ? (
+        <Table.Root size="sm">
+          <Table.Body>
+            {data.elements
+              .sort((a, b) => {
+                // first sort by visibility/presense, then by restored, then by has saved content, then by selector
+                if (a.presense === "visible" && b.presense !== "visible") {
+                  return -1;
+                }
+                if (a.presense !== "visible" && b.presense === "visible") {
+                  return 1;
+                }
+                if (a.presense === "present" && b.presense === null) {
+                  return -1;
+                }
+                if (a.presense === null && b.presense === "present") {
+                  return 1;
+                }
+                if (a.restored && !b.restored) {
+                  return -1;
+                }
+                if (!a.restored && b.restored) {
+                  return 1;
+                }
+                if (a.savedContent && !b.savedContent) {
+                  return -1;
+                }
+                if (!a.savedContent && b.savedContent) {
+                  return 1;
+                }
+                return a.selector.localeCompare(b.selector);
+              })
+              .map(({ selector, presense, savedContent, restored }) => (
+                <Table.Row key={selector}>
+                  <Table.Cell>
+                    {presense === "visible" ? (
+                      <ToggleTip content="Visible on page">
+                        <LuEye />
+                      </ToggleTip>
+                    ) : presense === "present" ? (
+                      <ToggleTip content="Present but not visible">
+                        <LuEyeClosed />
+                      </ToggleTip>
+                    ) : (
+                      <ToggleTip content="Not present on page">
+                        <LuCircleOff />
+                      </ToggleTip>
                     )}
-                  </Table.Body>
-                </Table.Root>
-              ) : (
-                <Text>Nothing yet.</Text>
-              )}
-            </AccordionItemContent>
-          </AccordionItem>
-        </AccordionRoot>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Code colorPalette={restored ? "green" : undefined}>
+                      {selector}
+                    </Code>
+                  </Table.Cell>
+                  <Table.Cell textAlign="end">
+                    <Group>
+                      <FocusSelectorButton
+                        selector={selector}
+                        disabled={presense !== "visible"}
+                      />
+                      <RestoreSelectorButton
+                        selector={selector}
+                        disabled={presense === null || !savedContent}
+                      />
+                      <CopySelectorContentButton
+                        selector={selector}
+                        disabled={!savedContent}
+                      />
+                      <ForgetSelectorContentButton
+                        selector={selector}
+                        onResponse={setData}
+                        disabled={!savedContent}
+                      />
+                    </Group>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+          </Table.Body>
+        </Table.Root>
+      ) : (
+        <Text>Nothing yet.</Text>
       );
       break;
   }
 
   return (
     <VStack align="start" width="100%">
-      <Heading as="h2" size="lg">
-        Current tab
-      </Heading>
       {content}
       <Group>
         <Button
