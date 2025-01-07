@@ -5,20 +5,20 @@ function makeKey() {
   return `form-saver-${window.location.href}`;
 }
 
-function isOptionElement(node: HTMLElement): node is HTMLOptionElement {
-  return node.tagName === "OPTION";
+function isOptionElement(element: HTMLElement): element is HTMLOptionElement {
+  return element.tagName === "OPTION";
 }
 
-function isInputElement(node: HTMLElement): node is HTMLInputElement {
-  return node.tagName === "INPUT";
+function isInputElement(element: HTMLElement): element is HTMLInputElement {
+  return element.tagName === "INPUT";
 }
 
-function isTextAreaElement(node: HTMLElement): node is HTMLTextAreaElement {
-  return node.tagName === "TEXTAREA";
+function isTextAreaElement(element: HTMLElement): element is HTMLTextAreaElement {
+  return element.tagName === "TEXTAREA";
 }
 
-function isSelectElement(node: HTMLElement): node is HTMLSelectElement {
-  return node.tagName === "SELECT";
+function isSelectElement(element: HTMLElement): element is HTMLSelectElement {
+  return element.tagName === "SELECT";
 }
 
 if (!window.requestIdleCallback) {
@@ -125,62 +125,62 @@ function getElementSelector(
 }
 
 function persistData(
-  node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
+  element: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
   data: Record<string, string>
 ) {
   if (isClearing) {
     return;
   }
-  let elementSelector = getElementSelector(node);
+  let elementSelector = getElementSelector(element);
   if (!elementSelector) {
     return;
   }
-  if (isOptionElement(node)) {
-    data[elementSelector] = node.selected ? "selected" : "";
-    console.debug("persisted selection for", elementSelector, node);
-  } else if (node.type === "checkbox" || node.type === "radio") {
-    data[elementSelector] = (node as HTMLInputElement).checked ? "checked" : "";
-    console.debug("persisted check for", elementSelector, node);
-  } else if (node.value) {
-    data[elementSelector] = node.value;
-    console.debug("persisted value for", elementSelector, node);
+  if (isOptionElement(element)) {
+    data[elementSelector] = element.selected ? "selected" : "";
+    console.debug("persisted selection for", elementSelector, element);
+  } else if (element.type === "checkbox" || element.type === "radio") {
+    data[elementSelector] = (element as HTMLInputElement).checked ? "checked" : "";
+    console.debug("persisted check for", elementSelector, element);
+  } else if (element.value) {
+    data[elementSelector] = element.value;
+    console.debug("persisted value for", elementSelector, element);
   } else {
     delete data[elementSelector];
-    console.debug("removed persisted value for", elementSelector, node);
+    console.debug("removed persisted value for", elementSelector, element);
   }
 }
 
 const restoredSoFar: Array<string> = [];
 
 function restoreData(
-  node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
+  element: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
   value: string,
   overwrite: boolean = false
 ) {
-  if (isOptionElement(node)) {
-    const from = node.selected;
+  if (isOptionElement(element)) {
+    const from = element.selected;
     const to = value === "selected";
     if (from !== to) {
-      node.selected = to;
-      console.debug("restored selection to", node);
-      restoredSoFar.push(getElementSelector(node)!);
+      element.selected = to;
+      console.debug("restored selection to", element);
+      restoredSoFar.push(getElementSelector(element)!);
     }
-  } else if (node.type === "checkbox" || node.type === "radio") {
-    const from = (node as HTMLInputElement).checked;
+  } else if (element.type === "checkbox" || element.type === "radio") {
+    const from = (element as HTMLInputElement).checked;
     const to = value === "checked";
     if (from !== to) {
-      (node as HTMLInputElement).checked = to;
-      console.debug("restored check to", node);
-      restoredSoFar.push(getElementSelector(node)!);
+      (element as HTMLInputElement).checked = to;
+      console.debug("restored check to", element);
+      restoredSoFar.push(getElementSelector(element)!);
     }
-  } else if (overwrite || !node.value) {
+  } else if (overwrite || !element.value) {
     // don't overwrite if the site has prefilled
-    const from = node.value;
+    const from = element.value;
     const to = value || "";
     if (from !== to) {
-      node.value = to;
-      console.debug("restored value to", node);
-      restoredSoFar.push(getElementSelector(node)!);
+      element.value = to;
+      console.debug("restored value to", element);
+      restoredSoFar.push(getElementSelector(element)!);
     }
   }
 }
@@ -245,8 +245,8 @@ function wipeOnSubmit(form: HTMLFormElement) {
         | undefined
         | Record<string, string>) || {};
 
-    findFormElements(form).forEach((node) => {
-      let elementSelector = getElementSelector(node);
+    findFormElements(form).forEach((element) => {
+      let elementSelector = getElementSelector(element);
       if (!elementSelector) {
         return;
       }
@@ -267,13 +267,13 @@ function setupEventHandlers(root: HTMLElement) {
     root.querySelectorAll("form").forEach(wipeOnSubmit);
   }
 
-  findChangableElements(root).forEach((node) => {
+  findChangableElements(root).forEach((element) => {
     // use request idle callback to persist data from this element.
     // if the element is already queued, cancel the last
 
-    node.addEventListener("change", () => {
-      if (isSelectElement(node)) {
-        node.querySelectorAll("option").forEach((option) => {
+    element.addEventListener("change", () => {
+      if (isSelectElement(element)) {
+        element.querySelectorAll("option").forEach((option) => {
           let selector = getElementSelector(option);
           if (!selector) {
             return;
@@ -281,7 +281,7 @@ function setupEventHandlers(root: HTMLElement) {
           toSaveSelectors.add(selector);
         });
       } else {
-        let selector = getElementSelector(node);
+        let selector = getElementSelector(element);
         if (!selector) {
           return;
         }
@@ -331,10 +331,10 @@ let mutationObserver = new MutationObserver((mutations) => {
 
     const added = Array.from(mutation.addedNodes)
       .flatMap(findFormElements)
-      .filter((node) => !node.value);
+      .filter((element) => !element.value);
     const removed = Array.from(mutation.removedNodes)
       .flatMap(findFormElements)
-      .filter((node) => node.value);
+      .filter((element) => element.value);
     if (added.length || removed.length) {
       // defer cost of JSON.parse to when we actually need it
       const pageKey = makeKey();
@@ -343,16 +343,16 @@ let mutationObserver = new MutationObserver((mutations) => {
           | undefined
           | Record<string, string>) || {};
       if (subscriptionActive) {
-        added.forEach((node) => {
-          let elementSelector = getElementSelector(node);
+        added.forEach((element) => {
+          let elementSelector = getElementSelector(element);
           if (!elementSelector) {
             return;
           }
-          restoreData(node, data[elementSelector]);
+          restoreData(element, data[elementSelector]);
         });
       }
-      removed.forEach((node) => {
-        // persistData(node, data);
+      removed.forEach((element) => {
+        // persistData(element, data);
       });
       localStorage.setItem(pageKey, JSON.stringify(data));
     }
@@ -371,8 +371,8 @@ window.addEventListener("pagehide", () => {
   const savedData = localStorage.getItem(makeKey()) || "{}";
   const data =
     (JSON.parse(savedData) as undefined | Record<string, string>) || {};
-  findFormElements(document.body).forEach((node) => {
-    // persistData(node, data);
+  findFormElements(document.body).forEach((element) => {
+    // persistData(element, data);
   });
 
   localStorage.setItem(makeKey(), JSON.stringify(data));
