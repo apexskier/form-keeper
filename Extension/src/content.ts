@@ -1,3 +1,5 @@
+import { selectAnatomy } from "@chakra-ui/react/anatomy";
+
 let subscriptionActive: null | boolean = null;
 let isClearing = false;
 
@@ -401,20 +403,26 @@ browser.runtime.onMessage.addListener(
   async (message: Message, sender, sendResponse) => {
     function respondWithPayload(data: Record<string, string>) {
       sendResponse({
-        restoredSoFar: Array.from(new Set(restoredSoFar)),
-        savedForPage: Object.keys(data).map((selector) => ({
+        watching: findFormElements(document.body)
+          .map((node) => ({
+            selector: getElementSelector(node),
+            visible: node.checkVisibility(),
+          }))
+          .filter(({ selector }) => !!selector),
+        restoredSoFar: Array.from(new Set(restoredSoFar)).map((selector) => ({
           selector,
-          content: data[selector],
-          isVisible: !!document.querySelector(selector),
+          visible: document.querySelector(selector) ?? false,
         })),
-      } as {
-        restoredSoFar: Array<string>;
-        savedForPage: Array<{
-          selector: string;
-          content: string;
-          isVisible: boolean;
-        }>;
-      });
+        savedForPage: Object.keys(data).map((selector) => {
+          let node = document.querySelector(selector);
+          return {
+            selector,
+            content: data[selector],
+            present: node ?? false,
+            visible: node?.checkVisibility() ?? false,
+          };
+        }),
+      } as MainPayload);
     }
 
     switch (message.action) {
@@ -464,7 +472,7 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "fillElement": {
-        if (!await checkSubscriptionStatus()) {
+        if (!(await checkSubscriptionStatus())) {
           alert("Please activate FormKeeper to use this feature");
           return;
         }
@@ -491,7 +499,7 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "copyElement": {
-        if (!await checkSubscriptionStatus()) {
+        if (!(await checkSubscriptionStatus())) {
           alert("Please activate FormKeeper to use this feature");
           return;
         }

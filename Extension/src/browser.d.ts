@@ -21,6 +21,23 @@ type Message =
       subscriptionActive: boolean;
     };
 
+interface MainPayload {
+  watching: Array<{
+    selector: string;
+    visible: boolean;
+  }>;
+  restoredSoFar: Array<{
+    selector: string;
+    visible: boolean;
+  }>;
+  savedForPage: Array<{
+    selector: string;
+    present: boolean;
+    visible: boolean;
+    content: string;
+  }>;
+}
+
 declare namespace browser.runtime {
   /**
    * Send a single message to a native application.

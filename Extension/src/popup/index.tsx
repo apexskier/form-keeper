@@ -140,14 +140,7 @@ function ForgetSelectorContentButton({
   onResponse,
 }: {
   selector: string;
-  onResponse: (data: {
-    restoredSoFar: Array<string>;
-    savedForPage: Array<{
-      selector: string;
-      content: string;
-      isVisible: boolean;
-    }>;
-  }) => void;
+  onResponse: (data: MainPayload) => void;
 }) {
   const activated = React.useContext(activatedContext);
   return (
@@ -162,14 +155,7 @@ function ForgetSelectorContentButton({
         }
         const message: Message = { action: "forgetElement", selector };
         onResponse(
-          (await browser.tabs.sendMessage(tabId, message)) as {
-            restoredSoFar: Array<string>;
-            savedForPage: Array<{
-              selector: string;
-              content: string;
-              isVisible: boolean;
-            }>;
-          }
+          (await browser.tabs.sendMessage(tabId, message)) as MainPayload
         );
       }, [activated])}
       size="xs"
@@ -182,18 +168,9 @@ function ForgetSelectorContentButton({
 
 function PageDetails() {
   const [reloadDep, reload] = useRerunEffect();
-  const [data, setData] = React.useState<
-    | loading
-    | failed
-    | {
-        restoredSoFar: Array<string>;
-        savedForPage: Array<{
-          selector: string;
-          content: string;
-          isVisible: boolean;
-        }>;
-      }
-  >(loading);
+  const [data, setData] = React.useState<loading | failed | MainPayload>(
+    loading
+  );
   React.useEffect(() => {
     (async () => {
       setData(loading);
@@ -207,16 +184,7 @@ function PageDetails() {
 
       const response = (await browser.tabs.sendMessage(tabId, {
         action: "getSaved",
-      })) as
-        | undefined
-        | {
-            restoredSoFar: Array<string>;
-            savedForPage: Array<{
-              selector: string;
-              content: string;
-              isVisible: boolean;
-            }>;
-          };
+      })) as undefined | MainPayload;
       if (!response) {
         setData(failed);
         return;
@@ -244,15 +212,42 @@ function PageDetails() {
       content = (
         <>
           <Heading as="h3" size="md">
+            Watched fields
+          </Heading>
+          <details>
+            <summary>
+              {data.watching.length} item
+              {data.watching.length === 1 ? "" : "s"}
+            </summary>
+            {data.watching.length ? (
+              <List.Root css={styles.root}>
+                {data.watching.map(({ selector, visible }) => (
+                  <List.Item key={selector} css={styles.item}>
+                    <HStack>
+                      <Code>{selector}</Code>{" "}
+                      {visible ? (
+                        <FocusSelectorButton selector={selector} />
+                      ) : null}
+                    </HStack>
+                  </List.Item>
+                ))}
+              </List.Root>
+            ) : (
+              <Text>Nothing yet.</Text>
+            )}
+          </details>
+          <Heading as="h3" size="md">
             Restored fields
           </Heading>
           {data.restoredSoFar.length ? (
             <List.Root css={styles.root}>
-              {data.restoredSoFar.map((selector) => (
+              {data.restoredSoFar.map(({ selector, visible }) => (
                 <List.Item key={selector} css={styles.item}>
                   <HStack>
                     <Code>{selector}</Code>{" "}
-                    <FocusSelectorButton selector={selector} />
+                    {visible ? (
+                      <FocusSelectorButton selector={selector} />
+                    ) : null}
                   </HStack>
                 </List.Item>
               ))}
@@ -270,28 +265,30 @@ function PageDetails() {
             </summary>
             {data.savedForPage.length ? (
               <List.Root css={styles.root}>
-                {data.savedForPage.map(({ selector, content, isVisible }) => (
-                  <List.Item key={selector} css={styles.item}>
-                    <HStack>
-                      <Code>{selector}</Code>{" "}
-                      <Group attached>
-                        {isVisible ? (
-                          <>
+                {data.savedForPage.map(
+                  ({ selector, content, present, visible }) => (
+                    <List.Item key={selector} css={styles.item}>
+                      <HStack>
+                        <Code>{selector}</Code>{" "}
+                        <Group attached>
+                          {visible ? (
                             <FocusSelectorButton selector={selector} />
+                          ) : null}
+                          {present ? (
                             <RestoreSelectorButton selector={selector} />
-                          </>
-                        ) : null}
-                        {content ? (
-                          <CopySelectorContentButton selector={selector} />
-                        ) : null}
-                        <ForgetSelectorContentButton
-                          selector={selector}
-                          onResponse={setData}
-                        />
-                      </Group>
-                    </HStack>
-                  </List.Item>
-                ))}
+                          ) : null}
+                          {content ? (
+                            <CopySelectorContentButton selector={selector} />
+                          ) : null}
+                          <ForgetSelectorContentButton
+                            selector={selector}
+                            onResponse={setData}
+                          />
+                        </Group>
+                      </HStack>
+                    </List.Item>
+                  )
+                )}
               </List.Root>
             ) : (
               <Text>Nothing yet.</Text>
