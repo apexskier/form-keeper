@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import {
+  ButtonProps,
   Code,
   Group,
   IconButton,
@@ -67,11 +68,8 @@ function useRerunEffect(): [unknown, () => void] {
 
 function FocusSelectorButton({
   selector,
-  disabled,
-}: {
-  selector: string;
-  disabled: boolean;
-}) {
+  ...props
+}: { selector: string } & ButtonProps) {
   return (
     <IconButton
       aria-label="Focus field"
@@ -88,7 +86,7 @@ function FocusSelectorButton({
       }, [])}
       size="xs"
       variant="outline"
-      disabled={disabled}
+      {...props}
     >
       <LuFocus />
     </IconButton>
@@ -97,11 +95,8 @@ function FocusSelectorButton({
 
 function RestoreSelectorButton({
   selector,
-  disabled,
-}: {
-  selector: string;
-  disabled: boolean;
-}) {
+  ...props
+}: { selector: string } & ButtonProps) {
   const activated = React.useContext(activatedContext);
   return (
     <IconButton
@@ -119,7 +114,7 @@ function RestoreSelectorButton({
       }, [activated])}
       size="xs"
       variant="outline"
-      disabled={disabled}
+      {...props}
     >
       <LuPencilLine />
     </IconButton>
@@ -128,11 +123,8 @@ function RestoreSelectorButton({
 
 function CopySelectorContentButton({
   selector,
-  disabled,
-}: {
-  selector: string;
-  disabled: boolean;
-}) {
+  ...props
+}: { selector: string } & ButtonProps) {
   const activated = React.useContext(activatedContext);
   return (
     <IconButton
@@ -149,7 +141,7 @@ function CopySelectorContentButton({
       }, [activated])}
       size="xs"
       variant="outline"
-      disabled={disabled}
+      {...props}
     >
       <LuClipboardCopy />
     </IconButton>
@@ -159,12 +151,11 @@ function CopySelectorContentButton({
 function ForgetSelectorContentButton({
   selector,
   onResponse,
-  disabled,
+  ...props
 }: {
   selector: string;
   onResponse: (data: MainPayload) => void;
-  disabled: boolean;
-}) {
+} & ButtonProps) {
   const activated = React.useContext(activatedContext);
   return (
     <IconButton
@@ -183,7 +174,7 @@ function ForgetSelectorContentButton({
       }, [activated])}
       size="xs"
       variant="outline"
-      disabled={disabled}
+      {...props}
     >
       <LuDelete />
     </IconButton>
@@ -291,7 +282,7 @@ function PageDetails() {
                     </Code>
                   </Table.Cell>
                   <Table.Cell textAlign="end">
-                    <Group>
+                    <Group attached>
                       <FocusSelectorButton
                         selector={selector}
                         disabled={presense !== "visible"}
