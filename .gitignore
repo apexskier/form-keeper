@@ -17,3 +17,5 @@ node_modules/
 
 Extension/Resources/*.js
 Extension/dst/
+
+*.screenshotstudio
