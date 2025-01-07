@@ -5,6 +5,10 @@ function makeKey() {
   return `form-saver-${window.location.href}`;
 }
 
+function isFormElement(element: HTMLElement): element is HTMLFormElement {
+  return element.tagName === "FORM";
+}
+
 function isOptionElement(element: HTMLElement): element is HTMLOptionElement {
   return element.tagName === "OPTION";
 }
@@ -189,34 +193,27 @@ function restoreData(
   }
 }
 
+function filterInputTypes(element: HTMLInputElement) {
+  return !(element.type === "password" || element.type === "hidden");
+}
+
+function filterFormInputTypes(element: HTMLElement) {
+  return !(isInputElement(element) && !filterInputTypes(element));
+}
+
 function findFormElements(
   node: Node
 ): Array<HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement> {
-  if (!(node instanceof HTMLElement)) {
-    return [];
-  }
-  if (isTextAreaElement(node)) {
-    return [node];
-  }
-  if (isInputElement(node)) {
-    return [node].filter(
-      (node) => !(node.type === "password" || node.type === "hidden")
-    );
-  }
-  if (isSelectElement(node)) {
-    return Array.from(node.querySelectorAll("option"));
-  }
-  return Array.from(
-    (node.querySelectorAll?.(`textarea, input, select option`) as NodeListOf<
-      HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
-    >) ?? []
-  ).filter(
-    (node) =>
-      !(
-        isInputElement(node) &&
-        (node.type === "password" || node.type === "hidden")
-      )
-  );
+  return findChangableElements(node).flatMap<
+    HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
+  >((element) => {
+    if (isSelectElement(element)) {
+      return Array.from(
+        element.querySelectorAll("option") as NodeListOf<HTMLOptionElement>
+      );
+    }
+    return [element];
+  });
 }
 
 function findChangableElements(
@@ -229,7 +226,7 @@ function findChangableElements(
     return [node];
   }
   if (isInputElement(node)) {
-    return [node].filter((node) => node.type !== "password");
+    return [node].filter(filterInputTypes);
   }
   if (isSelectElement(node)) {
     return [node];
@@ -238,7 +235,7 @@ function findChangableElements(
     (node.querySelectorAll?.("textarea, input, select") as NodeListOf<
       HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
     >) ?? []
-  ).filter((node) => !(isInputElement(node) && node.type === "password"));
+  ).filter(filterFormInputTypes);
 }
 
 function wipeOnSubmit(form: HTMLFormElement) {
@@ -265,7 +262,7 @@ let toSaveIdleCallback: number = -1;
 
 function setupEventHandlers(root: HTMLElement) {
   // wipe form data on submit
-  if (root.tagName === "FORM") {
+  if (isFormElement(root)) {
     wipeOnSubmit(root as HTMLFormElement);
   } else {
     root.querySelectorAll("form").forEach(wipeOnSubmit);
