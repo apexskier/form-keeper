@@ -220,92 +220,94 @@ function PageDetails() {
       break;
     default:
       content = data.elements.length ? (
-        <Table.Root size="sm">
-          <Table.Body>
-            {data.elements
-              .sort((a, b) => {
-                // first sort by visibility/presense, then by restored, then by has saved content, then by selector
-                if (a.presense === "visible" && b.presense !== "visible") {
-                  return -1;
-                }
-                if (a.presense !== "visible" && b.presense === "visible") {
-                  return 1;
-                }
-                if (a.presense === "present" && b.presense === null) {
-                  return -1;
-                }
-                if (a.presense === null && b.presense === "present") {
-                  return 1;
-                }
-                if (a.restored && !b.restored) {
-                  return -1;
-                }
-                if (!a.restored && b.restored) {
-                  return 1;
-                }
-                if (a.savedContent && !b.savedContent) {
-                  return -1;
-                }
-                if (!a.savedContent && b.savedContent) {
-                  return 1;
-                }
-                return a.selector.localeCompare(b.selector);
-              })
-              .map(({ selector, presense, savedContent, restored }) => (
-                <Table.Row key={selector}>
-                  <Table.Cell>
-                    {presense === "visible" ? (
-                      <ToggleTip content="Visible on page">
-                        <LuEye />
-                      </ToggleTip>
-                    ) : presense === "present" ? (
-                      <ToggleTip content="Present but not visible">
-                        <LuEyeClosed />
-                      </ToggleTip>
-                    ) : (
-                      <ToggleTip content="Not present on page">
-                        <LuCircleOff />
-                      </ToggleTip>
-                    )}
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Code
-                      colorPalette={
-                        restored
-                          ? "green"
-                          : presense !== null && savedContent
-                          ? "yellow"
-                          : undefined
-                      }
-                    >
-                      {selector}
-                    </Code>
-                  </Table.Cell>
-                  <Table.Cell textAlign="end">
-                    <Group attached>
-                      <FocusSelectorButton
-                        selector={selector}
-                        disabled={presense !== "visible"}
-                      />
-                      <RestoreSelectorButton
-                        selector={selector}
-                        disabled={presense === null || !savedContent}
-                      />
-                      <CopySelectorContentButton
-                        selector={selector}
-                        disabled={!savedContent}
-                      />
-                      <ForgetSelectorContentButton
-                        selector={selector}
-                        onResponse={setData}
-                        disabled={!savedContent}
-                      />
-                    </Group>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-          </Table.Body>
-        </Table.Root>
+        <Table.ScrollArea>
+          <Table.Root size="sm">
+            <Table.Body>
+              {data.elements
+                .sort((a, b) => {
+                  // first sort by visibility/presense, then by restored, then by has saved content, then by selector
+                  if (a.presense === "visible" && b.presense !== "visible") {
+                    return -1;
+                  }
+                  if (a.presense !== "visible" && b.presense === "visible") {
+                    return 1;
+                  }
+                  if (a.presense === "present" && b.presense === null) {
+                    return -1;
+                  }
+                  if (a.presense === null && b.presense === "present") {
+                    return 1;
+                  }
+                  if (a.restored && !b.restored) {
+                    return -1;
+                  }
+                  if (!a.restored && b.restored) {
+                    return 1;
+                  }
+                  if (a.savedContent && !b.savedContent) {
+                    return -1;
+                  }
+                  if (!a.savedContent && b.savedContent) {
+                    return 1;
+                  }
+                  return a.selector.localeCompare(b.selector);
+                })
+                .map(({ selector, presense, savedContent, restored }) => (
+                  <Table.Row key={selector}>
+                    <Table.Cell>
+                      {presense === "visible" ? (
+                        <ToggleTip content="Visible on page">
+                          <LuEye />
+                        </ToggleTip>
+                      ) : presense === "present" ? (
+                        <ToggleTip content="Present but not visible">
+                          <LuEyeClosed />
+                        </ToggleTip>
+                      ) : (
+                        <ToggleTip content="Not present on page">
+                          <LuCircleOff />
+                        </ToggleTip>
+                      )}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <Code
+                        colorPalette={
+                          restored
+                            ? "green"
+                            : presense !== null && savedContent
+                            ? "yellow"
+                            : undefined
+                        }
+                      >
+                        {selector}
+                      </Code>
+                    </Table.Cell>
+                    <Table.Cell textAlign="end">
+                      <Group attached>
+                        <FocusSelectorButton
+                          selector={selector}
+                          disabled={presense !== "visible"}
+                        />
+                        <RestoreSelectorButton
+                          selector={selector}
+                          disabled={presense === null || !savedContent}
+                        />
+                        <CopySelectorContentButton
+                          selector={selector}
+                          disabled={!savedContent}
+                        />
+                        <ForgetSelectorContentButton
+                          selector={selector}
+                          onResponse={setData}
+                          disabled={!savedContent}
+                        />
+                      </Group>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+            </Table.Body>
+          </Table.Root>
+        </Table.ScrollArea>
       ) : (
         <Text>Nothing yet.</Text>
       );
