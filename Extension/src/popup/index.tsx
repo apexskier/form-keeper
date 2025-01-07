@@ -4,18 +4,15 @@ import {
   Code,
   Group,
   Heading,
-  HStack,
   IconButton,
-  List,
   Spinner,
   StackSeparator,
+  Table,
   Text,
-  useSlotRecipe,
   VStack,
 } from "@chakra-ui/react";
 import { Provider } from "./components/ui/provider";
 import { Button } from "./components/ui/button";
-import { listSlotRecipe } from "./theme";
 import {
   LuFocus,
   LuPencilLine,
@@ -193,11 +190,6 @@ function PageDetails() {
     })();
   }, [reloadDep]);
 
-  const recipe = useSlotRecipe({
-    recipe: listSlotRecipe,
-  });
-  const styles = recipe();
-
   let content: React.ReactNode;
   switch (data) {
     case loading:
@@ -220,18 +212,30 @@ function PageDetails() {
               {data.watching.length === 1 ? "" : "s"}
             </summary>
             {data.watching.length ? (
-              <List.Root css={styles.root}>
-                {data.watching.map(({ selector, visible }) => (
-                  <List.Item key={selector} css={styles.item}>
-                    <HStack>
-                      <Code>{selector}</Code>{" "}
-                      {visible ? (
-                        <FocusSelectorButton selector={selector} />
-                      ) : null}
-                    </HStack>
-                  </List.Item>
-                ))}
-              </List.Root>
+              <Table.Root size="sm">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.ColumnHeader>Selector</Table.ColumnHeader>
+                    <Table.ColumnHeader textAlign="end">
+                      Actions
+                    </Table.ColumnHeader>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {data.watching.map(({ selector, visible }) => (
+                    <Table.Row key={selector}>
+                      <Table.Cell>
+                        <Code>{selector}</Code>
+                      </Table.Cell>
+                      <Table.Cell textAlign="end">
+                        {visible ? (
+                          <FocusSelectorButton selector={selector} />
+                        ) : null}
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
             ) : (
               <Text>Nothing yet.</Text>
             )}
@@ -240,18 +244,30 @@ function PageDetails() {
             Restored fields
           </Heading>
           {data.restoredSoFar.length ? (
-            <List.Root css={styles.root}>
-              {data.restoredSoFar.map(({ selector, visible }) => (
-                <List.Item key={selector} css={styles.item}>
-                  <HStack>
-                    <Code>{selector}</Code>{" "}
-                    {visible ? (
-                      <FocusSelectorButton selector={selector} />
-                    ) : null}
-                  </HStack>
-                </List.Item>
-              ))}
-            </List.Root>
+            <Table.Root size="sm">
+              <Table.Header>
+                <Table.Row>
+                  <Table.ColumnHeader>Selector</Table.ColumnHeader>
+                  <Table.ColumnHeader textAlign="end">
+                    Actions
+                  </Table.ColumnHeader>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {data.restoredSoFar.map(({ selector, visible }) => (
+                  <Table.Row key={selector}>
+                    <Table.Cell>
+                      <Code>{selector}</Code>
+                    </Table.Cell>
+                    <Table.Cell textAlign="end">
+                      {visible ? (
+                        <FocusSelectorButton selector={selector} />
+                      ) : null}
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table.Root>
           ) : (
             <Text>Nothing yet.</Text>
           )}
@@ -264,32 +280,44 @@ function PageDetails() {
               {data.savedForPage.length === 1 ? "" : "s"}
             </summary>
             {data.savedForPage.length ? (
-              <List.Root css={styles.root}>
-                {data.savedForPage.map(
-                  ({ selector, content, present, visible }) => (
-                    <List.Item key={selector} css={styles.item}>
-                      <HStack>
-                        <Code>{selector}</Code>{" "}
-                        <Group attached>
-                          {visible ? (
-                            <FocusSelectorButton selector={selector} />
-                          ) : null}
-                          {present ? (
-                            <RestoreSelectorButton selector={selector} />
-                          ) : null}
-                          {content ? (
-                            <CopySelectorContentButton selector={selector} />
-                          ) : null}
-                          <ForgetSelectorContentButton
-                            selector={selector}
-                            onResponse={setData}
-                          />
-                        </Group>
-                      </HStack>
-                    </List.Item>
-                  )
-                )}
-              </List.Root>
+              <Table.Root size="sm">
+                <Table.Header>
+                  <Table.Row>
+                    <Table.ColumnHeader>Selector</Table.ColumnHeader>
+                    <Table.ColumnHeader textAlign="end">
+                      Actions
+                    </Table.ColumnHeader>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {data.savedForPage.map(
+                    ({ selector, content, present, visible }) => (
+                      <Table.Row key={selector}>
+                        <Table.Cell>
+                          <Code>{selector}</Code>
+                        </Table.Cell>
+                        <Table.Cell textAlign="end">
+                          <Group attached>
+                            {visible ? (
+                              <FocusSelectorButton selector={selector} />
+                            ) : null}
+                            {present ? (
+                              <RestoreSelectorButton selector={selector} />
+                            ) : null}
+                            {content ? (
+                              <CopySelectorContentButton selector={selector} />
+                            ) : null}
+                            <ForgetSelectorContentButton
+                              selector={selector}
+                              onResponse={setData}
+                            />
+                          </Group>
+                        </Table.Cell>
+                      </Table.Row>
+                    )
+                  )}
+                </Table.Body>
+              </Table.Root>
             ) : (
               <Text>Nothing yet.</Text>
             )}

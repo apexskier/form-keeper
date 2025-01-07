@@ -56,6 +56,9 @@ function getElementSelector(
   }
 
   let elSelectorParts = [element.tagName.toLowerCase()];
+  if (element.getAttribute("type")) {
+    elSelectorParts.push(`[type="${element.getAttribute("type")}"]`);
+  }
   let elementId = element.getAttribute("id");
   if (elementId) {
     elSelectorParts.push(`#${elementId}`);
