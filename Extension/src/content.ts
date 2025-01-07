@@ -13,6 +13,14 @@ function isInputElement(node: HTMLElement): node is HTMLInputElement {
   return node.tagName === "INPUT";
 }
 
+function isTextAreaElement(node: HTMLElement): node is HTMLTextAreaElement {
+  return node.tagName === "TEXTAREA";
+}
+
+function isSelectElement(node: HTMLElement): node is HTMLSelectElement {
+  return node.tagName === "SELECT";
+}
+
 if (!window.requestIdleCallback) {
   window.requestIdleCallback = function (callback, _options) {
     const options = _options || {};
@@ -183,15 +191,15 @@ function findFormElements(
   if (!(node instanceof HTMLElement)) {
     return [];
   }
-  if (node.tagName === "TEXTAREA") {
-    return [node as HTMLTextAreaElement];
+  if (isTextAreaElement(node)) {
+    return [node];
   }
-  if (node.tagName === "INPUT") {
-    return [node as HTMLInputElement].filter(
+  if (isInputElement(node)) {
+    return [node].filter(
       (node) => !(node.type === "password" || node.type === "hidden")
     );
   }
-  if (node.tagName === "SELECT") {
+  if (isSelectElement(node)) {
     return Array.from(node.querySelectorAll("option"));
   }
   return Array.from(
@@ -213,16 +221,14 @@ function findChangableElements(
   if (!(node instanceof HTMLElement)) {
     return [];
   }
-  if (node.tagName === "TEXTAREA") {
-    return [node as HTMLTextAreaElement];
+  if (isTextAreaElement(node)) {
+    return [node];
   }
-  if (node.tagName === "INPUT") {
-    return [node as HTMLInputElement].filter(
-      (node) => node.type !== "password"
-    );
+  if (isInputElement(node)) {
+    return [node].filter((node) => node.type !== "password");
   }
-  if (node.tagName === "SELECT") {
-    return [node as HTMLSelectElement];
+  if (isSelectElement(node)) {
+    return [node];
   }
   return Array.from(
     (node.querySelectorAll?.("textarea, input, select") as NodeListOf<
@@ -266,7 +272,7 @@ function setupEventHandlers(root: HTMLElement) {
     // if the element is already queued, cancel the last
 
     node.addEventListener("change", () => {
-      if (node.tagName === "SELECT") {
+      if (isSelectElement(node)) {
         node.querySelectorAll("option").forEach((option) => {
           let selector = getElementSelector(option);
           if (!selector) {
@@ -477,8 +483,8 @@ browser.runtime.onMessage.addListener(
           element.scrollIntoView({ behavior: "smooth", block: "center" });
           if (element instanceof HTMLElement) {
             element.focus();
-            if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
-              (element as HTMLTextAreaElement | HTMLInputElement).select();
+            if (isTextAreaElement(element) || isInputElement(element)) {
+              element.select();
             }
           }
         }
@@ -504,8 +510,8 @@ browser.runtime.onMessage.addListener(
           restoreData(element, data[message.selector], true);
           if (element instanceof HTMLElement) {
             element.focus();
-            if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
-              (element as HTMLTextAreaElement | HTMLInputElement).select();
+            if (isTextAreaElement(element) || isInputElement(element)) {
+              element.select();
             }
           }
         }
