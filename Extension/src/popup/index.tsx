@@ -278,7 +278,15 @@ function PageDetails() {
                     )}
                   </Table.Cell>
                   <Table.Cell>
-                    <Code colorPalette={restored ? "green" : undefined}>
+                    <Code
+                      colorPalette={
+                        restored
+                          ? "green"
+                          : presense !== null && savedContent
+                          ? "yellow"
+                          : undefined
+                      }
+                    >
                       {selector}
                     </Code>
                   </Table.Cell>

@@ -152,6 +152,11 @@ function getElementSelector(element: HTMLElement) {
     }
   }
 
+  if (elSelectorParts.length <= 1) {
+    // just the tag name isn't unique enough, so don't save. Won't be usable in most cases anywhere.
+    // Apple has a bare `option` for loading state in app store connect which is an example of this.
+    return null;
+  }
   selectorParts.push(elSelectorParts.join(""));
 
   let selector = selectorParts.join(" ");
@@ -214,7 +219,7 @@ function restoreData(
     const to = value === "selected";
     if (from !== to) {
       element.selected = to;
-      console.debug("restored selection to", element);
+      console.debug("restored selection to", selector);
       restoredSoFar.push(selector);
     }
   } else if (isInputElement(element) || isTextAreaElement(element)) {
@@ -223,7 +228,7 @@ function restoreData(
       const to = value === "checked";
       if (from !== to) {
         (element as HTMLInputElement).checked = to;
-        console.debug("restored check to", element);
+        console.debug("restored check to", selector);
         restoredSoFar.push(selector);
       }
     } else if (overwrite || !element.value) {
@@ -232,7 +237,7 @@ function restoreData(
       const to = value || "";
       if (from !== to) {
         element.value = to;
-        console.debug("restored value to", element);
+        console.debug("restored value to", selector);
         restoredSoFar.push(selector);
       }
     }
@@ -245,8 +250,8 @@ function restoreData(
     const to = value || "";
     if (from !== to) {
       element.innerHTML = to;
-      console.debug("restored value to", element);
-        restoredSoFar.push(selector);
+      console.debug("restored value to", selector);
+      restoredSoFar.push(selector);
     }
   }
 }
@@ -429,10 +434,8 @@ let mutationObserver = new MutationObserver((mutations) => {
       }
     });
 
-    const added = Array.from(mutation.addedNodes)
-      .flatMap(findFormElements)
-    const removed = Array.from(mutation.removedNodes)
-      .flatMap(findFormElements)
+    const added = Array.from(mutation.addedNodes).flatMap(findFormElements);
+    const removed = Array.from(mutation.removedNodes).flatMap(findFormElements);
     if (added.length || removed.length) {
       // defer cost of JSON.parse to when we actually need it
       const pageKey = makeKey();
