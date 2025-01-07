@@ -13,7 +13,9 @@ function isInputElement(element: HTMLElement): element is HTMLInputElement {
   return element.tagName === "INPUT";
 }
 
-function isTextAreaElement(element: HTMLElement): element is HTMLTextAreaElement {
+function isTextAreaElement(
+  element: HTMLElement
+): element is HTMLTextAreaElement {
   return element.tagName === "TEXTAREA";
 }
 
@@ -139,7 +141,9 @@ function persistData(
     data[elementSelector] = element.selected ? "selected" : "";
     console.debug("persisted selection for", elementSelector, element);
   } else if (element.type === "checkbox" || element.type === "radio") {
-    data[elementSelector] = (element as HTMLInputElement).checked ? "checked" : "";
+    data[elementSelector] = (element as HTMLInputElement).checked
+      ? "checked"
+      : "";
     console.debug("persisted check for", elementSelector, element);
   } else if (element.value) {
     data[elementSelector] = element.value;
