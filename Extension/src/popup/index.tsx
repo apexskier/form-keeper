@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createRoot } from "react-dom/client";
 import {
+  Badge,
   Code,
   Group,
   Heading,
@@ -19,6 +20,12 @@ import {
   LuClipboardCopy,
   LuDelete,
 } from "react-icons/lu";
+import {
+  AccordionItem,
+  AccordionItemContent,
+  AccordionItemTrigger,
+  AccordionRoot,
+} from "../../../src/components/ui/accordion";
 
 // Render your React component instead
 const root = createRoot(document.getElementById("root")!);
@@ -202,127 +209,123 @@ function PageDetails() {
       break;
     default:
       content = (
-        <>
-          <Heading as="h3" size="md">
-            Watched fields
-          </Heading>
-          <details>
-            <summary>
-              {data.watching.length} item
-              {data.watching.length === 1 ? "" : "s"}
-            </summary>
-            {data.watching.length ? (
-              <Table.Root size="sm">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.ColumnHeader>Selector</Table.ColumnHeader>
-                    <Table.ColumnHeader textAlign="end">
-                      Actions
-                    </Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {data.watching.map(({ selector, visible }) => (
-                    <Table.Row key={selector}>
-                      <Table.Cell>
-                        <Code>{selector}</Code>
-                      </Table.Cell>
-                      <Table.Cell textAlign="end">
-                        {visible ? (
-                          <FocusSelectorButton selector={selector} />
-                        ) : null}
-                      </Table.Cell>
+        <AccordionRoot multiple>
+          <AccordionItem value="watched">
+            <AccordionItemTrigger>Watched <Badge size="xs">{data.watching.length}</Badge></AccordionItemTrigger>
+            <AccordionItemContent>
+              {data.watching.length ? (
+                <Table.Root size="sm">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeader>Selector</Table.ColumnHeader>
+                      <Table.ColumnHeader textAlign="end">
+                        Actions
+                      </Table.ColumnHeader>
                     </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
-            ) : (
-              <Text>Nothing yet.</Text>
-            )}
-          </details>
-          <Heading as="h3" size="md">
-            Restored fields
-          </Heading>
-          {data.restoredSoFar.length ? (
-            <Table.Root size="sm">
-              <Table.Header>
-                <Table.Row>
-                  <Table.ColumnHeader>Selector</Table.ColumnHeader>
-                  <Table.ColumnHeader textAlign="end">
-                    Actions
-                  </Table.ColumnHeader>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {data.restoredSoFar.map(({ selector, visible }) => (
-                  <Table.Row key={selector}>
-                    <Table.Cell>
-                      <Code>{selector}</Code>
-                    </Table.Cell>
-                    <Table.Cell textAlign="end">
-                      {visible ? (
-                        <FocusSelectorButton selector={selector} />
-                      ) : null}
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
-          ) : (
-            <Text>Nothing yet.</Text>
-          )}
-          <Heading as="h3" size="md">
-            Saved fields
-          </Heading>
-          <details>
-            <summary>
-              {data.savedForPage.length} item
-              {data.savedForPage.length === 1 ? "" : "s"}
-            </summary>
-            {data.savedForPage.length ? (
-              <Table.Root size="sm">
-                <Table.Header>
-                  <Table.Row>
-                    <Table.ColumnHeader>Selector</Table.ColumnHeader>
-                    <Table.ColumnHeader textAlign="end">
-                      Actions
-                    </Table.ColumnHeader>
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {data.savedForPage.map(
-                    ({ selector, content, present, visible }) => (
+                  </Table.Header>
+                  <Table.Body>
+                    {data.watching.map(({ selector, visible }) => (
                       <Table.Row key={selector}>
                         <Table.Cell>
                           <Code>{selector}</Code>
                         </Table.Cell>
                         <Table.Cell textAlign="end">
-                          <Group attached>
-                            {visible ? (
-                              <FocusSelectorButton selector={selector} />
-                            ) : null}
-                            {present ? (
-                              <RestoreSelectorButton selector={selector} />
-                            ) : null}
-                            {content ? (
-                              <CopySelectorContentButton selector={selector} />
-                            ) : null}
-                            <ForgetSelectorContentButton
-                              selector={selector}
-                              onResponse={setData}
-                            />
-                          </Group>
+                          {visible ? (
+                            <FocusSelectorButton selector={selector} />
+                          ) : null}
                         </Table.Cell>
                       </Table.Row>
-                    )
-                  )}
-                </Table.Body>
-              </Table.Root>
-            ) : (
-              <Text>Nothing yet.</Text>
-            )}
-          </details>
-        </>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
+              ) : (
+                <Text>Nothing yet.</Text>
+              )}
+            </AccordionItemContent>
+          </AccordionItem>
+          <AccordionItem value="restored">
+            <AccordionItemTrigger>Restored <Badge size="xs">{data.restoredSoFar.length}</Badge></AccordionItemTrigger>
+            <AccordionItemContent>
+              {data.restoredSoFar.length ? (
+                <Table.Root size="sm">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeader>Selector</Table.ColumnHeader>
+                      <Table.ColumnHeader textAlign="end">
+                        Actions
+                      </Table.ColumnHeader>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {data.restoredSoFar.map(({ selector, visible }) => (
+                      <Table.Row key={selector}>
+                        <Table.Cell>
+                          <Code>{selector}</Code>
+                        </Table.Cell>
+                        <Table.Cell textAlign="end">
+                          {visible ? (
+                            <FocusSelectorButton selector={selector} />
+                          ) : null}
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                </Table.Root>
+              ) : (
+                <Text>Nothing yet.</Text>
+              )}
+            </AccordionItemContent>
+          </AccordionItem>
+          <AccordionItem value="saved">
+            <AccordionItemTrigger>Saved <Badge size="xs">{data.savedForPage.length}</Badge></AccordionItemTrigger>
+            <AccordionItemContent>
+              {data.savedForPage.length ? (
+                <Table.Root size="sm">
+                  <Table.Header>
+                    <Table.Row>
+                      <Table.ColumnHeader>Selector</Table.ColumnHeader>
+                      <Table.ColumnHeader textAlign="end">
+                        Actions
+                      </Table.ColumnHeader>
+                    </Table.Row>
+                  </Table.Header>
+                  <Table.Body>
+                    {data.savedForPage.map(
+                      ({ selector, content, present, visible }) => (
+                        <Table.Row key={selector}>
+                          <Table.Cell>
+                            <Code>{selector}</Code>
+                          </Table.Cell>
+                          <Table.Cell textAlign="end">
+                            <Group attached>
+                              {visible ? (
+                                <FocusSelectorButton selector={selector} />
+                              ) : null}
+                              {present ? (
+                                <RestoreSelectorButton selector={selector} />
+                              ) : null}
+                              {content ? (
+                                <CopySelectorContentButton
+                                  selector={selector}
+                                />
+                              ) : null}
+                              <ForgetSelectorContentButton
+                                selector={selector}
+                                onResponse={setData}
+                              />
+                            </Group>
+                          </Table.Cell>
+                        </Table.Row>
+                      )
+                    )}
+                  </Table.Body>
+                </Table.Root>
+              ) : (
+                <Text>Nothing yet.</Text>
+              )}
+            </AccordionItemContent>
+          </AccordionItem>
+        </AccordionRoot>
       );
       break;
   }
