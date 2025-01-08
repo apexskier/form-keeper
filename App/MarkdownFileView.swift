@@ -16,6 +16,8 @@ struct MarkdownFileView: View {
     var body: some View {
         if let text {
             Markdown(text)
+                .markdownImageProvider(.asset)
+                .markdownInlineImageProvider(.asset)
         } else {
             Text("Failed to load content")
         }
