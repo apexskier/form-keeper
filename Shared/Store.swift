@@ -1,6 +1,10 @@
 import StoreKit
 
-let productIDs = ["activate.monthly", "activate.annual", "activate.lifetime"]
+let monthlyProductID = "activate.monthly"
+let annualProductID = "activate.annual"
+let lifetimeProductID = "activate.lifetime"
+let productIDs = [monthlyProductID, annualProductID, lifetimeProductID]
+let subscriptionID = "21604956"
 
 func isSubscriptionActive() async -> Bool {
     guard

@@ -1,5 +1,5 @@
-import SwiftUI
 import SafariServices
+import SwiftUI
 
 #if os(macOS)
 struct ExtensionStateManagementModifier: ViewModifier {
@@ -35,9 +35,9 @@ struct ExtensionStateManagementModifier: ViewModifier {
 #endif
 
 struct HomeView: View {
-#if os(macOS)
+    #if os(macOS)
     @State private var extensionState: SFSafariExtensionState? = nil
-#endif
+    #endif
 
     enum Instruction {
         case global
@@ -45,7 +45,7 @@ struct HomeView: View {
     }
     @State private var instructionShown: Instruction = .safari
 
-    @Binding var showStore: Bool
+    @Binding var showStore: Bool?
 
     var turnOnText: some View {
         Text(
@@ -69,7 +69,7 @@ struct HomeView: View {
 
                 StoreView(showStore: $showStore)
 
-#if os(macOS)
+                #if os(macOS)
                 VStack(spacing: 8) {
                     if let extensionState {
                         if extensionState.isEnabled {
@@ -100,7 +100,7 @@ struct HomeView: View {
                         Text("Open Safari Extensions Preferences")
                     }
                 }
-#elseif os(iOS)
+                #elseif os(iOS)
                 turnOnText
 
                 VStack(alignment: .leading, spacing: 20) {
@@ -110,10 +110,7 @@ struct HomeView: View {
                                 instructionShown = .safari
                             } label: {
                                 Text("Safari")
-                                    .if(
-                                        condition: instructionShown
-                                        == .safari
-                                    ) {
+                                    .if(instructionShown == .safari) {
                                         $0.bold()
                                     }
                             }
@@ -123,10 +120,7 @@ struct HomeView: View {
                                 instructionShown = .global
                             } label: {
                                 Text("Settings")
-                                    .if(
-                                        condition: instructionShown
-                                        == .global
-                                    ) {
+                                    .if(instructionShown == .global) {
                                         $0.bold()
                                     }
                             }
@@ -141,15 +135,15 @@ struct HomeView: View {
                         InstructionsViewiOSSafari()
                     }
                 }
-#endif
+                #endif
             }
             .padding()
             .frame(maxWidth: 400)
             .lineLimit(nil)
         }
-#if os(macOS)
+        #if os(macOS)
         .modifier(ExtensionStateManagementModifier(extensionState: $extensionState))
-#endif
+        #endif
     }
 }
 

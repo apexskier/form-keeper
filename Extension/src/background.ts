@@ -1,12 +1,10 @@
 browser.runtime.onMessage.addListener(
   async (message: Message, sender, sendResponse) => {
-    console.log("Received message:", message);
+    console.debug("Received message:", message);
     switch (message.action) {
-      case "checkActiveSubscription": {
-        sendResponse(await browser.runtime.sendNativeMessage("", message));
-        break;
-      }
-      case "activate": {
+      case "activate":
+      case "checkActiveSubscription":
+      case "copyToClipboard": {
         sendResponse(await browser.runtime.sendNativeMessage("", message));
         break;
       }

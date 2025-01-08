@@ -17,16 +17,23 @@ extension Text {
 }
 
 extension View {
-    func `if`(condition: Bool, transform: (Self) -> Self) -> some View {
+    func `if`<V: View>(_ condition: Bool, transform: (Self) -> V) -> AnyView {
         if condition {
-            return transform(self)
+            return AnyView(transform(self))
         }
-        return self
+        return AnyView(self)
+    }
+
+    func `iflet`<T, V: View>(_ value: T?, transform: (Self, T) -> V) -> AnyView {
+        if let value {
+            return AnyView(transform(self, value))
+        }
+        return AnyView(self)
     }
 }
 
 struct ContentView: View {
-    @Binding var showStore: Bool
+    @Binding var showStore: Bool?
 
     var body: some View {
         if #available(macOS 15.0, iOS 18.0, *) {

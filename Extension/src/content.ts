@@ -1,16 +1,46 @@
 let subscriptionActive: null | boolean = null;
 let isClearing = false;
 
+function assert(condition: boolean, message?: string): asserts condition {
+  if (!condition) {
+    throw new Error(message || "Assertion failed");
+  }
+}
+
 function makeKey() {
   return `form-saver-${window.location.href}`;
 }
 
-function isOptionElement(node: HTMLElement): node is HTMLOptionElement {
-  return node.tagName === "OPTION";
+function isFormElement(element: HTMLElement): element is HTMLFormElement {
+  return element.tagName === "FORM";
 }
 
-function isInputElement(node: HTMLElement): node is HTMLInputElement {
-  return node.tagName === "INPUT";
+function isOptionElement(element: HTMLElement): element is HTMLOptionElement {
+  return element.tagName === "OPTION";
+}
+
+function isInputElement(element: HTMLElement): element is HTMLInputElement {
+  return element.tagName === "INPUT";
+}
+
+function isTextAreaElement(
+  element: HTMLElement
+): element is HTMLTextAreaElement {
+  return element.tagName === "TEXTAREA";
+}
+
+function isSelectElement(element: HTMLElement): element is HTMLSelectElement {
+  return element.tagName === "SELECT";
+}
+
+function getElementValue(element: HTMLElement) {
+  if (isOptionElement(element)) {
+    return element.selected;
+  }
+  if (isInputElement(element)) {
+    return element.value;
+  }
+  return element.innerHTML;
 }
 
 if (!window.requestIdleCallback) {
@@ -40,28 +70,75 @@ if (!window.cancelIdleCallback) {
   };
 }
 
-function getElementSelector(
-  element:
-    | HTMLTextAreaElement
-    | HTMLInputElement
-    | HTMLOptionElement
-    | HTMLSelectElement
-) {
-  let selectorParts: Array<string> = [];
-  let formId = element.closest("form")?.getAttribute("id");
-  if (formId) {
-    selectorParts.push(`#${formId}`);
+function getIdSelector(element: HTMLElement) {
+  let id = element.getAttribute("id");
+  if (id) {
+    try {
+      document.querySelector(`#${id}`);
+      return `#${id}`;
+    } catch (error) {
+      return `[id="${id}"]`;
+    }
+  }
+  return null;
+}
+
+function getNameSelector(element: HTMLElement): string | null {
+  const elementName = element.getAttribute("name");
+  if (elementName) {
+    return `[name="${elementName}"]`;
+  }
+
+  // this is non-standard, but shows up in a bunch of google things
+  const jsname = element.getAttribute("jsname");
+  if (jsname) {
+    return `[jsname="${jsname}"]`;
+  }
+
+  return null;
+}
+
+function getElementSelector(element: HTMLElement) {
+  const selectorParts: Array<string> = [];
+
+  if (isFormElement(element)) {
+    const form = element.closest("form");
+    if (form) {
+      const formId = getIdSelector(form);
+      if (formId) {
+        selectorParts.push(formId);
+      }
+    }
+  }
+
+  if (isOptionElement(element)) {
+    const select = element.closest("select");
+    if (select) {
+      const selectId = getIdSelector(select);
+      if (selectId) {
+        selectorParts.push(selectId);
+      } else {
+        const nameSelector = getNameSelector(select);
+        if (nameSelector) {
+          selectorParts.push(`select${nameSelector}`);
+        }
+      }
+    }
   }
 
   let elSelectorParts = [element.tagName.toLowerCase()];
-  let elementId = element.getAttribute("id");
+  let elementId = getIdSelector(element);
   if (elementId) {
-    elSelectorParts.push(`#${elementId}`);
+    elSelectorParts.push(elementId);
   } else {
+    if (element.getAttribute("type")) {
+      elSelectorParts.push(`[type="${element.getAttribute("type")}"]`);
+    }
+
     if (
       isOptionElement(element) ||
-      element.type === "checkbox" ||
-      element.type === "radio"
+      (isInputElement(element) &&
+        (element.type === "checkbox" || element.type === "radio"))
     ) {
       const elementValue = element.value;
       if (elementValue) {
@@ -69,33 +146,17 @@ function getElementSelector(
       }
     }
 
-    function getNameComponent(
-      element: null | HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
-    ) {
-      if (!element) {
-        return;
-      }
-      const elementName = element.name;
-      if (elementName) {
-        elSelectorParts.push(`[name="${elementName}"]`);
-        return;
-      }
-
-      // this is non-standard, but shows up in a bunch of google things
-      const jsname = element.getAttribute("jsname");
-      if (jsname) {
-        elSelectorParts.push(`[jsname="${jsname}"]`);
-        return;
-      }
-    }
-
-    if (!isOptionElement(element)) {
-      getNameComponent(element);
-    } else {
-      getNameComponent(element.closest("select"));
+    const nameSelector = getNameSelector(element);
+    if (nameSelector) {
+      elSelectorParts.push(nameSelector);
     }
   }
 
+  if (elSelectorParts.length <= 1) {
+    // just the tag name isn't unique enough, so don't save. Won't be usable in most cases anywhere.
+    // Apple has a bare `option` for loading state in app store connect which is an example of this.
+    return null;
+  }
   selectorParts.push(elSelectorParts.join(""));
 
   let selector = selectorParts.join(" ");
@@ -114,94 +175,125 @@ function getElementSelector(
 }
 
 function persistData(
-  node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
+  element: HTMLElement,
+  selector: string,
   data: Record<string, string>
 ) {
   if (isClearing) {
     return;
   }
-  let elementSelector = getElementSelector(node);
-  if (!elementSelector) {
-    return;
-  }
-  if (isOptionElement(node)) {
-    data[elementSelector] = node.selected ? "selected" : "";
-    console.debug("persisted selection for", elementSelector, node);
-  } else if (node.type === "checkbox" || node.type === "radio") {
-    data[elementSelector] = (node as HTMLInputElement).checked ? "checked" : "";
-    console.debug("persisted check for", elementSelector, node);
-  } else if (node.value) {
-    data[elementSelector] = node.value;
-    console.debug("persisted value for", elementSelector, node);
+  if (isOptionElement(element)) {
+    data[selector] = element.selected ? "selected" : "";
+    console.debug("persisted selection for", selector, element);
+  } else if (isInputElement(element) || isTextAreaElement(element)) {
+    if (element.type === "checkbox" || element.type === "radio") {
+      data[selector] = (element as HTMLInputElement).checked ? "checked" : "";
+      console.debug("persisted check for", selector, element);
+    } else if (element.value) {
+      data[selector] = element.value;
+      console.debug("persisted value for", selector, element);
+    } else {
+      delete data[selector];
+      console.debug("removed persisted value for", selector, element);
+    }
   } else {
-    delete data[elementSelector];
-    console.debug("removed persisted value for", elementSelector, node);
+    assert(
+      element.getAttribute("contenteditable") === "true" ||
+        element.getAttribute("contenteditable") === "plaintext-only"
+    );
+    data[selector] = element.innerHTML;
+    console.debug("persisted value for", selector, element);
   }
 }
 
 const restoredSoFar: Array<string> = [];
 
 function restoreData(
-  node: HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
+  element: HTMLElement,
+  selector: string,
   value: string,
   overwrite: boolean = false
 ) {
-  if (isOptionElement(node)) {
-    const from = node.selected;
+  if (isOptionElement(element)) {
+    const from = element.selected;
     const to = value === "selected";
     if (from !== to) {
-      node.selected = to;
-      console.debug("restored selection to", node);
-      restoredSoFar.push(getElementSelector(node)!);
+      element.selected = to;
+      console.debug("restored selection to", selector);
+      restoredSoFar.push(selector);
     }
-  } else if (node.type === "checkbox" || node.type === "radio") {
-    const from = (node as HTMLInputElement).checked;
-    const to = value === "checked";
-    if (from !== to) {
-      (node as HTMLInputElement).checked = to;
-      console.debug("restored check to", node);
-      restoredSoFar.push(getElementSelector(node)!);
+  } else if (isInputElement(element) || isTextAreaElement(element)) {
+    if (element.type === "checkbox" || element.type === "radio") {
+      const from = (element as HTMLInputElement).checked;
+      const to = value === "checked";
+      if (from !== to) {
+        (element as HTMLInputElement).checked = to;
+        console.debug("restored check to", selector);
+        restoredSoFar.push(selector);
+      }
+    } else if (overwrite || !element.value) {
+      // don't overwrite if the site has prefilled
+      const from = element.value;
+      const to = value || "";
+      if (from !== to) {
+        element.value = to;
+        console.debug("restored value to", selector);
+        restoredSoFar.push(selector);
+      }
     }
-  } else if (overwrite || !node.value) {
-    // don't overwrite if the site has prefilled
-    const from = node.value;
+  } else {
+    assert(
+      element.getAttribute("contenteditable") === "true" ||
+        element.getAttribute("contenteditable") === "plaintext-only"
+    );
+    const from = element.innerHTML;
     const to = value || "";
     if (from !== to) {
-      node.value = to;
-      console.debug("restored value to", node);
-      restoredSoFar.push(getElementSelector(node)!);
+      element.innerHTML = to;
+      console.debug("restored value to", selector);
+      restoredSoFar.push(selector);
     }
   }
 }
 
-function findFormElements(
-  node: Node
-): Array<HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement> {
-  if (!(node instanceof HTMLElement)) {
-    return [];
-  }
-  if (node.tagName === "TEXTAREA") {
-    return [node as HTMLTextAreaElement];
-  }
-  if (node.tagName === "INPUT") {
-    return [node as HTMLInputElement].filter(
-      (node) => !(node.type === "password" || node.type === "hidden")
-    );
-  }
-  if (node.tagName === "SELECT") {
-    return Array.from(node.querySelectorAll("option"));
-  }
-  return Array.from(
-    (node.querySelectorAll?.(`textarea, input, select option`) as NodeListOf<
-      HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
-    >) ?? []
-  ).filter(
-    (node) =>
-      !(
-        isInputElement(node) &&
-        (node.type === "password" || node.type === "hidden")
-      )
+function filterInputTypes(element: HTMLInputElement) {
+  return !(
+    element.type === "password" ||
+    element.type === "hidden" ||
+    element.type === "file"
   );
+}
+
+function filterFormInputTypes(element: HTMLElement) {
+  return !(isInputElement(element) && !filterInputTypes(element));
+}
+
+function filterToSelectable(elements: Array<HTMLElement>) {
+  return elements
+    .map((element) => {
+      let selector = getElementSelector(element);
+      if (!selector) {
+        return null;
+      }
+      return [element, selector];
+    })
+    .filter((v): v is [HTMLElement, string] => v !== null);
+}
+
+function findFormElements(node: Node): Array<[HTMLElement, string]> {
+  return filterToSelectable([
+    ...findChangableElements(node).flatMap<
+      HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement
+    >((element) => {
+      if (isSelectElement(element)) {
+        return Array.from(
+          element.querySelectorAll("option") as NodeListOf<HTMLOptionElement>
+        );
+      }
+      return [element];
+    }),
+    ...findContentEditableElements(node),
+  ]);
 }
 
 function findChangableElements(
@@ -210,22 +302,35 @@ function findChangableElements(
   if (!(node instanceof HTMLElement)) {
     return [];
   }
-  if (node.tagName === "TEXTAREA") {
-    return [node as HTMLTextAreaElement];
+  if (isTextAreaElement(node)) {
+    return [node];
   }
-  if (node.tagName === "INPUT") {
-    return [node as HTMLInputElement].filter(
-      (node) => node.type !== "password"
-    );
+  if (isInputElement(node)) {
+    return [node].filter(filterInputTypes);
   }
-  if (node.tagName === "SELECT") {
-    return [node as HTMLSelectElement];
+  if (isSelectElement(node)) {
+    return [node];
   }
   return Array.from(
     (node.querySelectorAll?.("textarea, input, select") as NodeListOf<
       HTMLTextAreaElement | HTMLInputElement | HTMLSelectElement
     >) ?? []
-  ).filter((node) => !(isInputElement(node) && node.type === "password"));
+  ).filter(filterFormInputTypes);
+}
+
+function findContentEditableElements(node: Node): Array<HTMLElement> {
+  if (!(node instanceof HTMLElement)) {
+    return [];
+  }
+  let contenteditable = node.getAttribute("contenteditable");
+  if (contenteditable && contenteditable !== "false") {
+    return [node];
+  }
+  return Array.from(
+    (node.querySelectorAll?.(
+      `[contenteditable="true"], [contenteditable="plaintext-only"]`
+    ) as NodeListOf<HTMLElement>) ?? []
+  );
 }
 
 function wipeOnSubmit(form: HTMLFormElement) {
@@ -236,12 +341,8 @@ function wipeOnSubmit(form: HTMLFormElement) {
         | undefined
         | Record<string, string>) || {};
 
-    findFormElements(form).forEach((node) => {
-      let elementSelector = getElementSelector(node);
-      if (!elementSelector) {
-        return;
-      }
-      delete data[elementSelector];
+    findFormElements(form).forEach(([, selector]) => {
+      delete data[selector];
     });
     localStorage.setItem(pageKey, JSON.stringify(data));
   });
@@ -252,19 +353,57 @@ let toSaveIdleCallback: number = -1;
 
 function setupEventHandlers(root: HTMLElement) {
   // wipe form data on submit
-  if (root.tagName === "FORM") {
+  if (isFormElement(root)) {
     wipeOnSubmit(root as HTMLFormElement);
   } else {
     root.querySelectorAll("form").forEach(wipeOnSubmit);
   }
 
-  findChangableElements(root).forEach((node) => {
+  function queueToSave() {
+    window.cancelIdleCallback(toSaveIdleCallback);
+
+    toSaveIdleCallback = window.requestIdleCallback(() => {
+      const pageKey = makeKey();
+      const data =
+        (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+          | undefined
+          | Record<string, string>) || {};
+      toSaveSelectors.forEach((selector) => {
+        try {
+          const element = document.querySelector(selector) as HTMLElement;
+          if (!element) {
+            return;
+          }
+          persistData(element, selector, data);
+        } catch (error) {
+          console.log("failed to persist data");
+          console.error(error);
+        }
+      });
+      toSaveSelectors.clear();
+      localStorage.setItem(pageKey, JSON.stringify(data));
+    });
+  }
+
+  findContentEditableElements(root).forEach((element) => {
+    element.addEventListener("input", () => {
+      let selector = getElementSelector(element);
+      if (!selector) {
+        return;
+      }
+      toSaveSelectors.add(selector);
+
+      queueToSave();
+    });
+  });
+
+  findChangableElements(root).forEach((element) => {
     // use request idle callback to persist data from this element.
     // if the element is already queued, cancel the last
 
-    node.addEventListener("change", () => {
-      if (node.tagName === "SELECT") {
-        node.querySelectorAll("option").forEach((option) => {
+    element.addEventListener("change", () => {
+      if (isSelectElement(element)) {
+        element.querySelectorAll("option").forEach((option) => {
           let selector = getElementSelector(option);
           if (!selector) {
             return;
@@ -272,39 +411,14 @@ function setupEventHandlers(root: HTMLElement) {
           toSaveSelectors.add(selector);
         });
       } else {
-        let selector = getElementSelector(node);
+        let selector = getElementSelector(element);
         if (!selector) {
           return;
         }
         toSaveSelectors.add(selector);
       }
 
-      window.cancelIdleCallback(toSaveIdleCallback);
-
-      toSaveIdleCallback = window.requestIdleCallback(() => {
-        const pageKey = makeKey();
-        const data =
-          (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
-            | undefined
-            | Record<string, string>) || {};
-        toSaveSelectors.forEach((selector) => {
-          try {
-            const element = document.querySelector(selector) as
-              | HTMLInputElement
-              | HTMLTextAreaElement
-              | HTMLOptionElement;
-            if (!element) {
-              return;
-            }
-            persistData(element, data);
-          } catch (error) {
-            console.log("failed to persist data");
-            console.error(error);
-          }
-        });
-        toSaveSelectors.clear();
-        localStorage.setItem(pageKey, JSON.stringify(data));
-      });
+      queueToSave();
     });
   });
 }
@@ -320,12 +434,8 @@ let mutationObserver = new MutationObserver((mutations) => {
       }
     });
 
-    const added = Array.from(mutation.addedNodes)
-      .flatMap(findFormElements)
-      .filter((node) => !node.value);
-    const removed = Array.from(mutation.removedNodes)
-      .flatMap(findFormElements)
-      .filter((node) => node.value);
+    const added = Array.from(mutation.addedNodes).flatMap(findFormElements);
+    const removed = Array.from(mutation.removedNodes).flatMap(findFormElements);
     if (added.length || removed.length) {
       // defer cost of JSON.parse to when we actually need it
       const pageKey = makeKey();
@@ -334,16 +444,12 @@ let mutationObserver = new MutationObserver((mutations) => {
           | undefined
           | Record<string, string>) || {};
       if (subscriptionActive) {
-        added.forEach((node) => {
-          let elementSelector = getElementSelector(node);
-          if (!elementSelector) {
-            return;
-          }
-          restoreData(node, data[elementSelector]);
+        added.forEach(([element, selector]) => {
+          restoreData(element, selector, data[selector]);
         });
       }
-      removed.forEach((node) => {
-        // persistData(node, data);
+      removed.forEach(([element, selector]) => {
+        persistData(element, selector, data);
       });
       localStorage.setItem(pageKey, JSON.stringify(data));
     }
@@ -362,8 +468,8 @@ window.addEventListener("pagehide", () => {
   const savedData = localStorage.getItem(makeKey()) || "{}";
   const data =
     (JSON.parse(savedData) as undefined | Record<string, string>) || {};
-  findFormElements(document.body).forEach((node) => {
-    // persistData(node, data);
+  findFormElements(document.body).forEach(([element, selector]) => {
+    persistData(element, selector, data);
   });
 
   localStorage.setItem(makeKey(), JSON.stringify(data));
@@ -385,6 +491,7 @@ function restoreAll() {
         }
         restoreData(
           element as HTMLTextAreaElement | HTMLInputElement | HTMLOptionElement,
+          selector,
           value
         );
       } catch (error) {
@@ -398,7 +505,37 @@ function restoreAll() {
 setupEventHandlers(document.body);
 
 browser.runtime.onMessage.addListener(
-  (message: Message, sender, sendResponse) => {
+  async (message: Message, sender, sendResponse) => {
+    function respondWithPayload(data: Record<string, string>) {
+      let presentElements = Object.fromEntries(
+        findFormElements(document.body).map(([element, selector]) => [
+          selector,
+          element,
+        ])
+      );
+      let selectors = new Set([
+        ...Object.keys(data),
+        ...Object.keys(presentElements),
+      ]);
+
+      sendResponse({
+        elements: Array.from(selectors).map((selector) => {
+          let element =
+            presentElements[selector] ?? document.querySelector(selector);
+          return {
+            selector,
+            presense: element
+              ? element.checkVisibility()
+                ? "visible"
+                : "present"
+              : null,
+            savedContent: data[selector],
+            restored: restoredSoFar.includes(selector),
+          };
+        }),
+      } as MainPayload);
+    }
+
     switch (message.action) {
       case "clear": {
         if (window.confirm("Clear saved form data for this page and reload?")) {
@@ -406,6 +543,17 @@ browser.runtime.onMessage.addListener(
           isClearing = true;
           window.location.reload();
         }
+        break;
+      }
+      case "forgetElement": {
+        const pageKey = makeKey();
+        const data =
+          (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+            | undefined
+            | Record<string, string>) || {};
+        delete data[message.selector];
+        localStorage.setItem(pageKey, JSON.stringify(data));
+        respondWithPayload(data);
         break;
       }
       case "openApp": {
@@ -418,10 +566,7 @@ browser.runtime.onMessage.addListener(
           (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
             | undefined
             | Record<string, string>) || {};
-        sendResponse({
-          restoredSoFar: Array.from(new Set(restoredSoFar)),
-          savedForPage: Object.keys(data),
-        });
+        respondWithPayload(data);
         break;
       }
       case "focusElement": {
@@ -430,22 +575,20 @@ browser.runtime.onMessage.addListener(
           element.scrollIntoView({ behavior: "smooth", block: "center" });
           if (element instanceof HTMLElement) {
             element.focus();
-            if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
-              (element as HTMLTextAreaElement | HTMLInputElement).select();
+            if (isTextAreaElement(element) || isInputElement(element)) {
+              element.select();
+              element.setSelectionRange(0, element.value.length);
             }
           }
         }
         break;
       }
       case "fillElement": {
-        if (!subscriptionActive) {
+        if (!(await checkSubscriptionStatus())) {
           alert("Please activate FormKeeper to use this feature");
           return;
         }
-        const element = document.querySelector(message.selector) as
-          | HTMLTextAreaElement
-          | HTMLInputElement
-          | HTMLOptionElement;
+        const element = document.querySelector(message.selector) as HTMLElement;
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "center" });
           // defer cost of JSON.parse to when we actually need it
@@ -454,14 +597,32 @@ browser.runtime.onMessage.addListener(
             (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
               | undefined
               | Record<string, string>) || {};
-          restoreData(element, data[message.selector], true);
+          restoreData(element, message.selector, data[message.selector], true);
           if (element instanceof HTMLElement) {
             element.focus();
-            if (element.tagName === "TEXTAREA" || element.tagName === "INPUT") {
-              (element as HTMLTextAreaElement | HTMLInputElement).select();
+            if (isTextAreaElement(element) || isInputElement(element)) {
+              element.select();
+              element.setSelectionRange(0, element.value.length);
             }
           }
         }
+        break;
+      }
+      case "copyElement": {
+        if (!(await checkSubscriptionStatus())) {
+          alert("Please activate FormKeeper to use this feature");
+          return;
+        }
+        const pageKey = makeKey();
+        const data =
+          (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
+            | undefined
+            | Record<string, string>) || {};
+        browser.runtime.sendMessage({
+          action: "copyToClipboard",
+          type: "text",
+          data: data[message.selector],
+        });
         break;
       }
       case "subscriptionActive": {
@@ -475,12 +636,17 @@ browser.runtime.onMessage.addListener(
   }
 );
 
-browser.runtime
-  .sendMessage({ action: "checkActiveSubscription" })
-  .then((response: { echo: unknown; subscriptionActive: boolean }) => {
-    if (!response) {
-      return;
-    }
-    subscriptionActive = response.subscriptionActive;
-    restoreAll();
-  });
+async function checkSubscriptionStatus(): Promise<boolean | null> {
+  const response = (await browser.runtime.sendMessage({
+    action: "checkActiveSubscription",
+  })) as { echo: unknown; subscriptionActive: boolean };
+  if (!response) {
+    return null;
+  }
+  subscriptionActive = response.subscriptionActive;
+  return subscriptionActive;
+}
+
+checkSubscriptionStatus().then(() => {
+  restoreAll();
+});
