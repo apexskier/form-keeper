@@ -1,11 +1,6 @@
 type Message =
   | {
-      action:
-        | "clear"
-        | "checkActiveSubscription"
-        | "activate"
-        | "openApp"
-        | "getSaved";
+      action: "clear" | "openApp" | "getSaved";
     }
   | {
       action: "copyToClipboard";
@@ -24,7 +19,7 @@ type Message =
 interface MainPayload {
   elements: Array<{
     selector: string;
-    presense: "visible" | "present" | null
+    presense: "visible" | "present" | null;
     savedContent: string;
     restored: boolean;
   }>;

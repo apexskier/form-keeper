@@ -45,8 +45,6 @@ struct HomeView: View {
     }
     @State private var instructionShown: Instruction = .safari
 
-    @Binding var showStore: Bool?
-
     var turnOnText: some View {
         Text(
             "You can turn on \(appName)’s extension in Safari Extensions preferences."
@@ -66,8 +64,6 @@ struct HomeView: View {
                     "\(appName) tries to perserves content you enter into forms in case of accidental refresh or page close."
                 )
                 .customText()
-
-                StoreView(showStore: $showStore)
 
                 #if os(macOS)
                 VStack(spacing: 8) {
@@ -148,5 +144,5 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(showStore: .constant(false))
+    HomeView()
 }

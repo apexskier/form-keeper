@@ -6,12 +6,9 @@
 //
 
 import SafariServices
-import StoreKit
 import os.log
 
 class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
-    private var activatePoller: Task<Void, Never>? = nil
-
     private enum DataType: String, RawRepresentable {
         case text = "text"
         case html = "html"
@@ -38,13 +35,6 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 return
             }
             switch action {
-            case "checkActiveSubscription":
-                if !(await context.completeRequest(returningMessage: [
-                    "action": "subscriptionActive",
-                    "subscriptionActive": await isSubscriptionActive()
-                ])) {
-                    print("failed")
-                }
             case "copyToClipboard":
                 guard let data = message["data"] as? String, let rawType = message["type"] as? String, let type = DataType(rawValue: rawType) else {
                     return
@@ -56,65 +46,6 @@ class SafariWebExtensionHandler: NSObject, NSExtensionRequestHandling {
                 let pasteboard = UIPasteboard.general
                 pasteboard.string = data
                 #endif
-            case "activate":
-                if await isSubscriptionActive() {
-                    if !(await context.completeRequest(returningMessage: [
-                        "action": "subscriptionActive",
-                        "subscriptionActive": true
-                    ])) {
-                        print("failed")
-                    }
-                } else {
-                    guard let url = URL(string: "form-keeper://activate") else {
-                        return
-                    }
-                    #if os(macOS)
-                    let opened = NSWorkspace.shared.open(url)
-                    #else
-                    let opened = await context.open(url)
-                    #endif
-                    if opened {
-                        activatePoller?.cancel()
-                        activatePoller = Task {
-                            while !(await isSubscriptionActive()) {
-                                if #available(macOSApplicationExtension 13.0, *) {
-                                    try? await Task.sleep(for: .seconds(5))
-                                } else {
-                                    try? await Task.sleep(nanoseconds: 5_000_000_000)
-                                }
-                                if Task.isCancelled {
-                                    return
-                                }
-                            }
-
-                            if !(await context.completeRequest(returningMessage: [
-                                "action": "subscriptionActive",
-                                "subscriptionActive": true
-                            ])) {
-                                print("failed")
-                            }
-                        }
-                        Timer.scheduledTimer(withTimeInterval: 60, repeats: false) { _ in
-                            self.activatePoller?.cancel()
-                        }
-//                        Task {
-//                            // wait for one transaction to change, then attempt to signal back to the extension to indicate purchase
-//                            let _ = await Transaction.updates.first(where: { _ in true })
-//                            if !(await context.completeRequest(returningMessage: [
-//                                "action": "subscriptionActive",
-//                                "subscriptionActive": await isSubscriptionActive()
-//                            ])) {
-//                                print("failed")
-//                            }
-//                        }
-                    } else {
-                        if !(await context.completeRequest(returningMessage: [
-                            "action": "openApp"
-                        ])) {
-                            print("failed")
-                        }
-                    }
-                }
             default:
                 break
             }

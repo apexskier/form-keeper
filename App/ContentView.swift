@@ -1,5 +1,4 @@
 import SafariServices
-import StoreKit
 import SwiftUI
 
 struct TextModifier: ViewModifier {
@@ -33,13 +32,11 @@ extension View {
 }
 
 struct ContentView: View {
-    @Binding var showStore: Bool?
-
     var body: some View {
         if #available(macOS 15.0, iOS 18.0, *) {
             TabView {
                 Tab("Home", systemImage: "house") {
-                    HomeView(showStore: $showStore)
+                    HomeView()
                 }
                 Tab("More", systemImage: "ellipsis.circle") {
                     MoreView()
@@ -47,7 +44,7 @@ struct ContentView: View {
             }
         } else {
             TabView {
-                HomeView(showStore: $showStore)
+                HomeView()
                     .tabItem {
                         Label("Home", systemImage: "house")
                     }
@@ -61,5 +58,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(showStore: .constant(false))
+    ContentView()
 }

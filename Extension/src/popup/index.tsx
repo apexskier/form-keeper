@@ -29,7 +29,7 @@ const root = createRoot(document.getElementById("root")!);
 
 root.render(
   <Provider>
-    <Main />
+    <PageDetails />
   </Provider>
 );
 
@@ -37,16 +37,6 @@ const loading = Symbol("loading");
 type loading = typeof loading;
 const failed = Symbol("failed");
 type failed = typeof failed;
-
-const activatedContext = React.createContext<loading | boolean>(loading);
-
-function ActivatedText() {
-  const activated = React.useContext(activatedContext);
-  if (activated === loading) {
-    return <Spinner />;
-  }
-  return <>{activated ? "active!" : "inactive!"}</>;
-}
 
 async function getCurrentTab() {
   const currentTabs = await browser.tabs.query({
@@ -97,7 +87,6 @@ function RestoreSelectorButton({
   selector,
   ...props
 }: { selector: string } & ButtonProps) {
-  const activated = React.useContext(activatedContext);
   return (
     <IconButton
       aria-label="Restore field"
@@ -111,7 +100,7 @@ function RestoreSelectorButton({
         window.close();
         const message: Message = { action: "fillElement", selector };
         browser.tabs.sendMessage(tabId, message);
-      }, [activated])}
+      }, [])}
       size="xs"
       variant="outline"
       {...props}
@@ -125,7 +114,6 @@ function CopySelectorContentButton({
   selector,
   ...props
 }: { selector: string } & ButtonProps) {
-  const activated = React.useContext(activatedContext);
   return (
     <IconButton
       aria-label="Copy contents"
@@ -138,7 +126,7 @@ function CopySelectorContentButton({
         }
         const message: Message = { action: "copyElement", selector };
         browser.tabs.sendMessage(tabId, message);
-      }, [activated])}
+      }, [])}
       size="xs"
       variant="outline"
       {...props}
@@ -156,7 +144,6 @@ function ForgetSelectorContentButton({
   selector: string;
   onResponse: (data: MainPayload) => void;
 } & ButtonProps) {
-  const activated = React.useContext(activatedContext);
   return (
     <IconButton
       aria-label="Forget"
@@ -171,7 +158,7 @@ function ForgetSelectorContentButton({
         onResponse(
           (await browser.tabs.sendMessage(tabId, message)) as MainPayload
         );
-      }, [activated])}
+      }, [])}
       size="xs"
       variant="outline"
       {...props}
@@ -337,83 +324,5 @@ function PageDetails() {
         </Button>
       </Group>
     </VStack>
-  );
-}
-
-function useActivated(): [boolean | loading, () => void] {
-  const checkActive = React.useCallback(() => {
-    browser.runtime.onMessage.addListener((message: Message) => {
-      if (message.action === "subscriptionActive") {
-        setActivated(message.subscriptionActive);
-      }
-    });
-  }, []);
-
-  const [activated, setActivated] = React.useState<boolean | loading>(loading);
-  React.useEffect(() => {
-    checkActive();
-  }, []);
-
-  React.useEffect(() => {
-    browser.runtime
-      .sendMessage({ action: "checkActiveSubscription" })
-      .then((response: { subscriptionActive: boolean }) => {
-        if (!response) {
-          return;
-        }
-        setActivated(response.subscriptionActive);
-      });
-  }, []);
-
-  const onActivate = React.useCallback(async () => {
-    const response = (await browser.runtime.sendMessage({
-      action: "activate",
-    })) as
-      | { action: "subscriptionActive"; subscriptionActive: boolean }
-      | { action: "openApp" };
-
-    const tabId = await getCurrentTab();
-    if (!tabId) {
-      console.warn("couldn't get current tab");
-      return;
-    }
-
-    if (response.action == "openApp") {
-      // can't open directly from a popup, so ask the current tab to open it
-      const message: Message = { action: "openApp" };
-      browser.tabs.sendMessage(tabId, message);
-      window.close();
-    } else {
-      // update popup state
-      setActivated(response.subscriptionActive);
-      // tell content script activation happened, and ask to restore fields
-      const message: Message = {
-        action: "subscriptionActive",
-        subscriptionActive: response.subscriptionActive,
-      };
-      browser.tabs.sendMessage(tabId, message);
-    }
-  }, []);
-
-  return [activated, onActivate];
-}
-
-function Main() {
-  const [activated, onActivate] = useActivated();
-
-  return (
-    <activatedContext.Provider value={activated}>
-      <VStack separator={<StackSeparator />} width="100%">
-        <VStack>
-          <Text>
-            FormKeeper is <ActivatedText />
-          </Text>
-          {activated === false && (
-            <Button onClick={onActivate}>Activate</Button>
-          )}
-        </VStack>
-        <PageDetails />
-      </VStack>
-    </activatedContext.Provider>
   );
 }

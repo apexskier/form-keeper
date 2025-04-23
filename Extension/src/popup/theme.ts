@@ -1,7 +1,4 @@
-import {
-  createSystem,
-  defaultConfig,
-} from "@chakra-ui/react";
+import { createSystem, defaultConfig } from "@chakra-ui/react";
 
 const serifSystemFont = `-apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Cantarell, Ubuntu, roboto, noto, arial, sans-serif`;
 
