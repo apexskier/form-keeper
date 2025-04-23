@@ -1,4 +1,3 @@
-let subscriptionActive: null | boolean = null;
 let isClearing = false;
 
 function assert(condition: boolean, message?: string): asserts condition {
@@ -443,11 +442,9 @@ let mutationObserver = new MutationObserver((mutations) => {
         (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
           | undefined
           | Record<string, string>) || {};
-      if (subscriptionActive) {
-        added.forEach(([element, selector]) => {
-          restoreData(element, selector, data[selector]);
-        });
-      }
+      added.forEach(([element, selector]) => {
+        restoreData(element, selector, data[selector]);
+      });
       removed.forEach(([element, selector]) => {
         persistData(element, selector, data);
       });
@@ -476,9 +473,6 @@ window.addEventListener("pagehide", () => {
 });
 
 function restoreAll() {
-  if (!subscriptionActive) {
-    return;
-  }
   const savedData = localStorage.getItem(makeKey());
   if (savedData) {
     Object.entries(
@@ -557,7 +551,7 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "openApp": {
-        document.location = "form-keeper://activate";
+        document.location = "form-keeper://";
         break;
       }
       case "getSaved": {
@@ -584,10 +578,6 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "fillElement": {
-        if (!(await checkSubscriptionStatus())) {
-          alert("Please activate FormKeeper to use this feature");
-          return;
-        }
         const element = document.querySelector(message.selector) as HTMLElement;
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -609,10 +599,6 @@ browser.runtime.onMessage.addListener(
         break;
       }
       case "copyElement": {
-        if (!(await checkSubscriptionStatus())) {
-          alert("Please activate FormKeeper to use this feature");
-          return;
-        }
         const pageKey = makeKey();
         const data =
           (JSON.parse(localStorage.getItem(pageKey) ?? "{}") as
@@ -625,28 +611,10 @@ browser.runtime.onMessage.addListener(
         });
         break;
       }
-      case "subscriptionActive": {
-        subscriptionActive = message.subscriptionActive;
-        restoreAll();
-        break;
-      }
       default:
         console.warn("unexpected message", message.action);
     }
   }
 );
 
-async function checkSubscriptionStatus(): Promise<boolean | null> {
-  const response = (await browser.runtime.sendMessage({
-    action: "checkActiveSubscription",
-  })) as { echo: unknown; subscriptionActive: boolean };
-  if (!response) {
-    return null;
-  }
-  subscriptionActive = response.subscriptionActive;
-  return subscriptionActive;
-}
-
-checkSubscriptionStatus().then(() => {
-  restoreAll();
-});
+restoreAll();
